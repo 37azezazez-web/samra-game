@@ -115,12 +115,14 @@ test('التعديل اليدوي ما ينزل تحت الصفر', () => {
 
 test('المحتوى: كل بطاقة ٥ تلميحات وفئة معروفة وid فريد', () => {
   const ids = new Set();
+  const answers = new Set();
   const cats = CATEGORIES.map(c => c.id);
   for (const c of CARDS) {
     assert.strictEqual(c.clues.length, 5, c.id);
     assert.ok(cats.includes(c.cat), c.id);
     assert.ok(!ids.has(c.id), c.id); ids.add(c.id);
+    assert.ok(!answers.has(c.answer.trim()), "جواب مكرر " + c.answer); answers.add(c.answer.trim());
     for (const cl of c.clues) assert.ok(!cl.includes(c.answer.replace(/^ال/, '')) || c.id === 'adnan', `${c.id}: التلميحة فيها الجواب: ${cl}`);
   }
-  assert.ok(CARDS.length >= 100, 'عدد البطاقات ' + CARDS.length);
+  assert.ok(CARDS.length >= 500, 'عدد البطاقات ' + CARDS.length);
 });
