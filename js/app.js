@@ -4,14 +4,15 @@
   var E = window.SamraEngine;
   var CARDS = window.SAMRA_CARDS;
   var CATS = window.SAMRA_CATEGORIES;
-  var SOUNDS = window.SAMRA_SOUNDS || [];
+  var G = window.SamraGuess;
+  var NUMBERS = window.SAMRA_NUMBERS || [];
+  var numById = {}; NUMBERS.forEach(function (q) { numById[q.id] = q; });
   var PROMPTS = window.SAMRA_PROMPTS || [];
-  var SFX = window.SamraSfx || { play: function () { return 0; }, stop: function () { } };
-  var byId = {}; CARDS.concat(SOUNDS).forEach(function (c) { byId[c.id] = c; });
-  var catById = {}; CATS.concat([{ id: 'sound', name: 'اسمعها', q: 'وش هالصوت؟' }, { id: 'who', name: 'من فينا؟', q: 'مين فينا؟' }]).forEach(function (c) { catById[c.id] = c; });
+  var byId = {}; CARDS.forEach(function (c) { byId[c.id] = c; });
+  var catById = {}; CATS.concat([{ id: 'who', name: 'من فينا؟', q: 'مين فينا؟' }]).forEach(function (c) { catById[c.id] = c; });
   var MODES = {
     masira: { name: 'مسيرة', desc: 'تلميحات تنكشف وحدة ورا الثانية، وكل ما عرفتوها أسرع نقاطكم أكثر.' },
-    sound: { name: 'اسمعها', desc: 'قريبًا: نجهز أصوات حقيقية بدل الحالية.', soon: true },
+    guess: { name: 'كم تتوقع؟', desc: 'سؤال جوابه رقم، وكل فريق يكتب توقعه. الأقرب ياخذ النقاط.' },
     who: { name: 'من فينا؟', desc: 'كل واحد يكتب أسراره بالسر، والباقين يخمنون مين صاحبها.' }
   };
   var MIN_PLAYERS = 3, MAX_PLAYERS = 16, WHO_Q = 5;
@@ -34,6 +35,7 @@
       if (!s || s.v !== 1 || !Array.isArray(s.teams) || s.teams.length < 2 || s.teams.length > 4) return false;
       if (s.mode == null) s.mode = 'masira';
       if (!MODES[s.mode]) return false;
+      if (s.mode === 'guess') return validGuess(s);
       if (s.mode === 'who' && !validPlayers(s.players, MIN_PLAYERS)) return false;
       var has = function (id) { return !!cardOf(s, id); };
       if (!Array.isArray(s.deck) || !s.deck.length || !s.deck.every(has)) return false;
@@ -47,6 +49,26 @@
       return true;
     } catch (e) { return false; }
   }
+  function validGuess(s) {
+    var n = s.teams.length, has = function (id) { return !!numById[id]; };
+    if (!s.teams.every(function (t) { return t && typeof t.name === 'string' && t.name.length <= 40 && typeof t.score === 'number' && isFinite(t.score) && t.score >= 0; })) return false;
+    if (!Array.isArray(s.deck) || !s.deck.length || !s.deck.every(has)) return false;
+    if (['ask', 'show', 'over'].indexOf(s.phase) === -1 || !(s.index >= 0 && s.index < s.deck.length)) return false;
+    if (!Array.isArray(s.history) || !s.history.every(function (h) { return h && has(h.card) && Array.isArray(h.points); })) return false;
+    if (s.tiebreak != null) {
+      var tb = s.tiebreak;
+      if (typeof tb !== 'object' || !Array.isArray(tb.teams) || !tb.teams.every(function (i) { return i >= 0 && i < n; })) return false;
+      if (tb.card != null && !has(tb.card)) return false;
+      if (s.phase === 'ask' && !tb.card) return false;
+    }
+    if (s.phase === 'show') {
+      var r = s.result;
+      if (!r || !Array.isArray(r.guesses) || r.guesses.length !== n || !Array.isArray(r.points) || r.points.length !== n || typeof r.answer !== 'number') return false;
+      if (!r.guesses.every(function (g) { return g === null || (typeof g === 'number' && isFinite(g)); })) return false;
+    }
+    return true;
+  }
+
   /* لاعبين «من فينا؟»: اسم + ٥ تلميحات نصية، كلها بحدود */
   function validPlayers(ps, min) {
     return Array.isArray(ps) && ps.length >= min && ps.length <= MAX_PLAYERS && ps.every(function (p) {
@@ -56,13 +78,13 @@
   }
   // البطاقة حسب نوع اللعبة: من فينا بطاقاته من اللاعبين نفسهم
   function cardOf(s, id) {
+    if (s && s.mode === 'guess') return numById[id] || null;
     if (s && s.mode === 'who') {
       var m = /^p(\d{1,2})$/.exec(String(id)), p = m && s.players[+m[1]];
       return p ? { id: id, cat: 'who', answer: p.name, clues: p.clues } : null;
     }
     var c = byId[id];
     if (!c) return null;
-    if (s && s.mode === 'sound' ? c.cat !== 'sound' : c.cat === 'sound') return null;
     return c;
   }
   var state = load(KEY, null);
@@ -77,7 +99,7 @@
     if (s && s.mode !== 'who' && s.history.length && (!prev || prev.history.length !== s.history.length)) {
       var seen = load(SEEN, []);
       var id = s.history[s.history.length - 1].card;
-      if (seen.indexOf(id) === -1) { seen.push(id); if (seen.length >= CARDS.length + SOUNDS.length) seen = [id]; save(SEEN, seen); }
+      if (seen.indexOf(id) === -1) { seen.push(id); if (seen.length >= CARDS.length + NUMBERS.length) seen = [id]; save(SEEN, seen); }
     }
     render();
   }
@@ -112,7 +134,7 @@
   var peek = false; // المضيف يشوف الجواب
   var who = load(WHO, null); // لاعبين «من فينا؟» قبل ما تبدأ السهرة
   if (!who || !validPlayers(who.players, 0)) who = { players: [] };
-  var whoPrompts = null, whoErr = '';
+  var whoPrompts = null, whoErr = '', guessErr = '';
 
   /* لو صار أي خطأ غير متوقع وقت العرض، نرجع للرئيسية بدل شاشة فاضية */
   function render() {
@@ -130,6 +152,7 @@
     if (view === 'who-form') return renderWhoForm();
     if (!state) { view = 'home'; return renderHome(); }
     if (state.phase === 'over') return renderOver();
+    if (state.mode === 'guess') return state.phase === 'show' ? renderShow() : renderAsk();
     if (state.phase === 'answer') return renderAnswer();
     return renderClue();
   }
@@ -162,11 +185,11 @@
       '<li>أول تلميحة بـ ٥ نقاط، وكل تلميحة زيادة تنقص نقطة.</li>' +
       '<li>آخر ٣ بطاقات نقاطها مضاعفة، ولو تعادلتوا فيه جولة فاصلة.</li>' +
       '</ol>' +
-      '<h2>اسمعها</h2>' +
+      '<h2>كم تتوقع؟</h2>' +
       '<ol>' +
-      '<li>نفس مسيرة، بس أول تلميحة صوت. ارفعوا صوت الجوال أو وصلوه بسماعة.</li>' +
-      '<li>عرفتوه من الصوت بس؟ ٥ نقاط. تقدرون تعيدون الصوت كل ما بغيتوا.</li>' +
-      '<li>كل الأصوات مصنوعة داخل اللعبة، وتشتغل بدون إنترنت.</li>' +
+      '<li>المضيف يقرا سؤال جوابه رقم، مثل: كم عظمة في جسم الإنسان؟</li>' +
+      '<li>كل فريق يتشاور ويقول رقمه، والمضيف يكتبه.</li>' +
+      '<li>اللي جاب الرقم بالضبط ياخذ ٥ نقاط، وإلا الأقرب ياخذ ٣.</li>' +
       '</ol>' +
       '<h2>من فينا؟</h2>' +
       '<ol>' +
@@ -200,17 +223,17 @@
         [2, 3, 4].map(function (n) { return chip('count', n, num(n) + ' فرق', setup.count === n); }).join('') + '</div></div>' +
       '<div class="field"><span class="label">أسماء الفرق</span><div class="stack">' + teamInputs + '</div></div>' +
       (m === 'who' ? '' : '<div class="field"><span class="label">طول السهرة</span><div class="chips">' +
-        chip('length', 'short', 'قصيرة · ' + num(E.LENGTHS.short), setup.length === 'short') +
-        chip('length', 'medium', 'متوسطة · ' + num(E.LENGTHS.medium), setup.length === 'medium') +
-        chip('length', 'long', 'طويلة · ' + num(E.LENGTHS.long), setup.length === 'long') + '</div></div>') +
-      '<div class="field"><span class="label">أسلوب التخمين</span><div class="chips">' +
+        chip('length', 'short', 'قصيرة · ' + num((m === 'guess' ? G.LENGTHS : E.LENGTHS).short), setup.length === 'short') +
+        chip('length', 'medium', 'متوسطة · ' + num((m === 'guess' ? G.LENGTHS : E.LENGTHS).medium), setup.length === 'medium') +
+        chip('length', 'long', 'طويلة · ' + num((m === 'guess' ? G.LENGTHS : E.LENGTHS).long), setup.length === 'long') + '</div></div>') +
+      (m === 'guess' ? '' : '<div class="field"><span class="label">أسلوب التخمين</span><div class="chips">' +
         chip('style', 'turns', 'بالدور', setup.style === 'turns') +
         chip('style', 'speed', 'سرعة', setup.style === 'speed') + '</div>' +
-        '<span class="hint">' + (setup.style === 'turns' ? 'كل تلميحة لها فريق واحد يجاوب مرة وحدة.' : 'أي فريق يصارخ بالجواب أول ياخذها.') + '</span></div>' +
+        '<span class="hint">' + (setup.style === 'turns' ? 'كل تلميحة لها فريق واحد يجاوب مرة وحدة.' : 'أي فريق يصارخ بالجواب أول ياخذها.') + '</span></div>') +
       (m !== 'masira' ? '' : '<div class="field"><span class="label">الفئات</span><div class="chips">' +
         CATS.map(function (c) { return chip('cat', c.id, c.name, setup.cats.indexOf(c.id) !== -1); }).join('') + '</div>' +
         '<span class="hint">' + num(pool) + ' بطاقة بالفئات المختارة</span></div>') +
-      (m === 'sound' ? '<p class="hint">' + num(SOUNDS.length) + ' صوت. ارفعوا صوت الجوال.</p>' : '') +
+      (m === 'guess' ? '<p class="hint">' + num(NUMBERS.length) + ' سؤال. المضبوط ' + num(G.EXACT) + ' نقاط، والأقرب ' + num(G.CLOSEST) + '.</p>' : '') +
       (err ? '<p class="error" role="alert">' + esc(err) + '</p>' : '') +
       '<div class="spacer"></div>' +
       '<button class="btn big" type="button" data-act="start">' + (m === 'who' ? 'التالي: أسرار اللاعبين' : 'يلا نبدأ') + '</button>';
@@ -272,13 +295,10 @@
     var pts = E.cluePoints(s.revealed) * (golden ? 2 : 1);
     var clues = '';
     for (var i = 0; i < E.MAX_CLUES; i++) {
-      if (i === 0 && card.sfx) clues += soundClue();
-      else if (i < s.revealed) clues += '<li class="clue' + (i >= lastRevealed ? ' new' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(card.clues[i]) + '</span></li>';
+      if (i < s.revealed) clues += '<li class="clue' + (i >= lastRevealed ? ' new' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(card.clues[i]) + '</span></li>';
       else clues += '<li class="clue locked"><span class="n">' + num(i + 1) + '</span><span>تلميحة مخفية</span></li>';
     }
-    var fresh = lastRevealed === 0;
     lastRevealed = s.revealed;
-    if (fresh && card.sfx) SFX.play(card.sfx);
     var t = s.teams[s.turn];
     var controls;
     if (s.style === 'turns' || tb) {
@@ -311,8 +331,67 @@
       strip(s, s.style === 'turns' || tb ? s.turn : -1);
   }
 
-  function soundClue() {
-    return '<li class="clue sound"><span class="n">' + num(1) + '</span><button class="btn quiet play" type="button" data-act="play">▶ شغّل الصوت</button></li>';
+  /* ---------- كم تتوقع؟ ---------- */
+  function unitOf(q, n) { return num(n) + (q.unit ? ' ' + esc(q.unit) : ''); }
+
+  function renderAsk() {
+    app.className = 'play';
+    var s = state, q = numById[G.currentId(s)], tb = !!(s.tiebreak && s.tiebreak.card);
+    var inPlay = tb ? s.tiebreak.teams : s.teams.map(function (_, i) { return i; });
+    app.innerHTML =
+      '<div class="top"><span>' + (tb ? '<span class="badge red">جولة فاصلة</span>' : 'سؤال ' + num(s.index + 1) + ' من ' + num(s.deck.length)) + '</span>' +
+        '<button class="end" type="button" data-act="end">إنهاء</button></div>' +
+      '<div class="q-head">' + layers(3) + '<div><span class="badge">كم تتوقع؟</span>' +
+        '<p class="pts">' + (tb ? 'الأقرب يفوز بالسهرة' : 'المضبوط <b>' + num(G.EXACT) + '</b> نقاط، والأقرب <b>' + num(G.CLOSEST) + '</b>') + '</p></div></div>' +
+      '<h2 class="num-q">' + esc(q.q) + '</h2>' +
+      (q.unit ? '<p class="hint">الجواب بـ: ' + esc(q.unit) + '</p>' : '') +
+      '<button class="peek" type="button" data-act="peek" aria-pressed="' + peek + '">' + (peek ? 'الجواب: <b>' + unitOf(q, q.answer) + '</b> · اخفه' : 'المضيف: اضغط تشوف الجواب') + '</button>' +
+      '<div class="stack">' + inPlay.map(function (i) {
+        return '<label class="team-input t' + i + '"><span class="dot"></span><span class="g-name">' + esc(s.teams[i].name) + '</span>' +
+          '<input type="text" id="g-' + i + '" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="توقعهم" aria-label="توقع ' + esc(s.teams[i].name) + '"></label>';
+      }).join('') + '</div>' +
+      (guessErr ? '<p class="error" role="alert">' + esc(guessErr) + '</p>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn big" type="button" data-act="guess-show">ورنا الجواب</button>' +
+      strip(s, -1);
+  }
+
+  function submitGuesses() {
+    if (!state || state.mode !== 'guess' || state.phase !== 'ask') return;
+    var raw = state.teams.map(function (_, i) { var el = document.getElementById('g-' + i); return el ? el.value : ''; });
+    var vals = raw.map(function (v) { return String(v).trim() ? G.parse(v) : null; });
+    var bad = raw.some(function (v, i) { return String(v).trim() && vals[i] === null; });
+    var any = vals.some(function (v) { return v !== null; });
+    guessErr = bad ? 'اكتبوا أرقام بس، بدون حروف' : !any ? 'اكتبوا توقع فريق واحد على الأقل' : '';
+    if (guessErr) {
+      render();
+      raw.forEach(function (v, i) { var el = document.getElementById('g-' + i); if (el) el.value = v; });
+      return;
+    }
+    peek = false; buzz(30);
+    setState(G.submit(state, vals, numById[G.currentId(state)].answer));
+  }
+
+  function renderShow() {
+    app.className = 'play';
+    var s = state, r = s.result, q = numById[s.history[s.history.length - 1].card];
+    var tb = !!s.tiebreak;
+    var last = !tb && s.index >= s.deck.length - 1;
+    app.innerHTML =
+      '<div class="top"><span>' + (tb ? 'جولة فاصلة' : 'سؤال ' + num(s.index + 1) + ' من ' + num(s.deck.length)) + '</span><button class="end" type="button" data-act="end">إنهاء</button></div>' +
+      '<p class="muted center">' + esc(q.q) + '</p>' +
+      '<div class="reveal">' + layers(5) + '<div class="ans">' + unitOf(q, q.answer) + '</div></div>' +
+      '<ul class="guesses">' + s.teams.map(function (t, i) {
+        var g = r.guesses[i], p = r.points[i];
+        if (tb && s.tiebreak.teams.indexOf(i) === -1) return '';
+        return '<li class="t' + i + (p ? ' win' : '') + '"><span class="nm">' + esc(t.name) + '</span>' +
+          '<span class="gv">' + (g === null ? 'ما جاوب' : num(g) + (g === q.answer ? '' : ' <small>(فرق ' + num(Math.abs(g - q.answer)) + ')</small>')) + '</span>' +
+          '<span class="gp">' + (p ? '+' + num(p) : '') + '</span></li>';
+      }).join('') + '</ul>' +
+      (tb && s.tiebreak.winner != null ? '<p class="result center">' + esc(s.teams[s.tiebreak.winner].name) + ' فاز بالجولة الفاصلة</p>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn big" type="button" data-act="next">' + (tb || last ? 'النتيجة' : 'السؤال الجاي') + '</button>' +
+      strip(s, -1);
   }
 
   function renderAnswer() {
@@ -328,7 +407,6 @@
       '<div class="top"><span>' + (s.tiebreak ? 'جولة فاصلة' : 'بطاقة ' + num(s.index + 1) + ' من ' + num(s.deck.length)) + '</span><button class="end" type="button" data-act="end">إنهاء</button></div>' +
       '<div class="reveal">' + layers(5) + '<span class="badge">' + esc(catById[card.cat].name) + '</span><div class="ans">' + esc(card.answer) + '</div>' + line + '</div>' +
       '<ol class="clues">' + card.clues.map(function (c, i) {
-        if (i === 0 && card.sfx) return soundClue();
         return '<li class="clue' + (i >= r.revealed ? ' locked' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(c) + '</span></li>';
       }).join('') + '</ol>' +
       '<div class="spacer"></div>' +
@@ -338,14 +416,16 @@
 
   function renderOver() {
     app.className = 'over';
-    var s = state, win = E.winners(s);
+    var s = state, win = (s.mode === 'guess' ? G : E).winners(s);
     var order = s.teams.map(function (t, i) { return { t: t, i: i }; }).sort(function (a, b) {
       var aw = win.indexOf(a.i) !== -1, bw = win.indexOf(b.i) !== -1;
       if (aw !== bw) return aw ? -1 : 1;
       return b.t.score - a.t.score;
     });
+    if (s.tiebreak && s.tiebreak.shared) win = s.tiebreak.teams;
     var title = win.length === 1 ? 'مبروك ' + esc(s.teams[win[0]].name) + '!' : 'تعادل!';
     var known = s.history.filter(function (h) { return h.team != null && !h.tiebreak; });
+    var exact = s.mode === 'guess' ? s.history.filter(function (h) { return !h.tiebreak && h.points.indexOf(G.EXACT) !== -1; }).length : 0;
     var quick = known.filter(function (h) { return h.revealed === 1; }).length;
     app.innerHTML =
       '<div class="reveal">' + layers(5) + '<div class="crown">' + title + '</div>' +
@@ -353,7 +433,8 @@
       '<ol class="podium">' + order.map(function (o, k) {
         return '<li class="t' + o.i + (win.indexOf(o.i) !== -1 ? ' win' : '') + '"><span class="rk">' + num(k + 1) + '</span><span class="nm">' + esc(o.t.name) + '</span><span class="sc">' + num(o.t.score) + '</span></li>';
       }).join('') + '</ol>' +
-      '<p class="muted small center">عرفتوا ' + num(known.length) + ' من ' + num(s.deck.length) + ' بطاقة' + (quick ? '، و' + num(quick) + ' منها من أول تلميحة' : '') + '</p>' +
+      '<p class="muted small center">' + (s.mode === 'guess' ? (exact ? 'جبتوا الرقم بالضبط ' + num(exact) + ' مرات من ' + num(s.deck.length) : 'محد جاب رقم مضبوط، بس قربتوا') :
+        'عرفتوا ' + num(known.length) + ' من ' + num(s.deck.length) + ' بطاقة' + (quick ? '، و' + num(quick) + ' منها من أول تلميحة' : '')) + '</p>' +
       '<div class="spacer"></div>' +
       '<div class="stack"><button class="btn big" type="button" data-act="again">سهرة ثانية بنفس الفرق</button>' +
       '<button class="btn ghost" type="button" data-act="home-clear">الرئيسية</button></div>';
@@ -372,8 +453,11 @@
     mode = mode || setup.mode;
     try {
       var opts = { teams: names, length: setup.length, style: setup.style, seen: load(SEEN, []) };
-      if (mode === 'sound') opts.cards = SOUNDS;
-      else if (mode === 'who') {
+      if (mode === 'guess') {
+        var gg = G.newGame({ teams: names, questions: NUMBERS, length: setup.length, seen: opts.seen });
+        lastRevealed = 0; view = 'play'; guessErr = '';
+        return setState(gg);
+      } else if (mode === 'who') {
         players = players || who.players;
         if (!validPlayers(players, MIN_PLAYERS)) throw new Error('تحتاجون ' + num(MIN_PLAYERS) + ' لاعبين على الأقل');
         opts.cards = players.map(function (_, i) { return { id: 'p' + i, cat: 'who' }; });
@@ -394,7 +478,7 @@
   function spareIds() {
     var inPlay = state.deck;
     if (state.mode === 'who') return [];
-    return E.shuffle((state.mode === 'sound' ? SOUNDS : CARDS).filter(function (c) { return inPlay.indexOf(c.id) === -1; }).map(function (c) { return c.id; }), Math.random);
+    return E.shuffle((state.mode === 'guess' ? NUMBERS : CARDS).filter(function (c) { return inPlay.indexOf(c.id) === -1; }).map(function (c) { return c.id; }), Math.random);
   }
 
   app.addEventListener('click', function (ev) {
@@ -422,7 +506,7 @@
         readNames(); save(SETUP, setup);
         if (setup.mode === 'who') { view = 'collect'; return renderCollect(); }
         return startGame();
-      case 'play': if (state) { var cc = cardOf(state, state.phase === 'answer' ? state.history[state.history.length - 1].card : E.currentCardId(state)); if (cc && cc.sfx) SFX.play(cc.sfx); } return;
+      case 'guess-show': return submitGuesses();
       case 'who-back': view = 'setup'; return renderSetup();
       case 'who-add': whoPrompts = pickPrompts(); whoErr = ''; view = 'who-form'; return render();
       case 'who-cancel': whoErr = ''; view = 'collect'; return render();
@@ -454,12 +538,14 @@
       case 'wrong': if (!state) return; buzz(12); return setState(E.wrong(state));
       case 'reveal': if (!state) return; return setState(E.revealNext(state));
       case 'giveup': if (!state) return; return setState(E.giveUp(state));
-      case 'next': if (!state) return; peek = false; SFX.stop(); return setState(E.nextCard(state, spareIds()));
+      case 'next': if (!state) return; peek = false; guessErr = '';
+        if (state.mode === 'guess') return setState(G.next(state, spareIds()));
+        return setState(E.nextCard(state, spareIds()));
       case 'peek': peek = !peek; return render();
       case 'scores': return openScores();
       case 'end': return openDlg(document.getElementById('confirm'));
       case 'again': if (!state) return; return startGame(state.teams.map(function (t) { return t.name; }), state.mode, state.players);
-      case 'home-clear': view = 'home'; SFX.stop(); return setState(null);
+      case 'home-clear': view = 'home'; return setState(null);
     }
   });
 
@@ -489,7 +575,7 @@
   });
   document.getElementById('confirm-yes').addEventListener('click', function () {
     closeDlg(document.getElementById('confirm'));
-    view = 'home'; SFX.stop(); setState(null);
+    view = 'home'; setState(null);
   });
 
   render();

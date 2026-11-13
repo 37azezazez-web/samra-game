@@ -73,31 +73,6 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
     await ctx.close();
   }
 
-  // كل أصوات «اسمعها» تطلع صوت مسموع وما فيها خلل
-  {
-    const ctx = await b.newContext();
-    const p = await ctx.newPage();
-    await p.goto(url);
-    const res = await p.evaluate(async () => {
-      const out = [];
-      for (const id of window.SamraSfx.ids) {
-        const d = window.SamraSfx.dur(id);
-        const c = new OfflineAudioContext(1, Math.ceil(44100 * (d + 0.3)), 44100);
-        window.SamraSfx.render(id, c);
-        const buf = await c.startRendering();
-        const x = buf.getChannelData(0);
-        let peak = 0, sum = 0, bad = 0;
-        for (let i = 0; i < x.length; i++) { const v = x[i]; if (!isFinite(v)) bad++; else { peak = Math.max(peak, Math.abs(v)); sum += v * v; } }
-        out.push({ id, peak, rms: Math.sqrt(sum / x.length), bad });
-      }
-      return out;
-    });
-    const quiet = res.filter(r => r.peak < 0.05 || r.bad);
-    ok(!quiet.length, `${res.length} صوت كلها تطلع صوت واضح ` + (quiet.length ? JSON.stringify(quiet) : ''));
-    console.log('  ' + res.map(r => `${r.id}:${r.peak.toFixed(2)}/${r.rms.toFixed(3)}`).join(' '));
-    await ctx.close();
-  }
-
   // من فينا: ٣ لاعبين بأسماء فيها أكواد، ونلعب للنهاية
   {
     const ctx = await b.newContext();
@@ -129,27 +104,28 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
     await ctx.close();
   }
 
-  // اسمعها: تبدأ ويشتغل زر الصوت
+  // كم تتوقع: سهرة كاملة، مع كتابة غلط وأرقام عربية
   {
     const ctx = await b.newContext();
     const p = await ctx.newPage();
     const errs = [];
     p.on('pageerror', e => errs.push(e.message));
     await p.goto(url);
-    await p.evaluate(() => localStorage.setItem('samra.setup.v2', JSON.stringify({ mode: 'sound', count: 2, names: ['أ', 'ب', 'ج', 'د'], length: 'short', style: 'turns', cats: ['food'] })));
-    await p.goto(url + 'index.html?soundtest');
-    ok(await p.$eval('[data-mode=sound]', el => el.disabled), 'اسمعها مقفلة مؤقتًا من الرئيسية');
-    await p.close(); await ctx.close();
-  }
-  if (0) {
-    const ctx = await b.newContext();
-    const p = await ctx.newPage();
-    const errs = [];
+    await p.click('[data-mode=guess]');
+    await p.click('[data-length=short], [data-val=short]');
     await p.click('[data-act=start]');
-    await p.click('[data-act=play]');
-    await p.click('[data-act=wrong]');
-    await p.click('[data-act=play]');
-    ok(!!(await p.$('.clue.sound')) && (await p.$$('.clue:not(.locked)')).length === 2 && !errs.length, 'اسمعها: الصوت يشتغل والتلميحات تنكشف ' + errs.join(' '));
+    await p.fill('#g-0', '<img src=x onerror=__xss=1>');
+    await p.click('[data-act=guess-show]');
+    ok(!!(await p.$('.error')) && !!(await p.$('#g-0')), 'كم تتوقع: الحروف ترفض بدون ما يعلق');
+    let guard = 0;
+    while (!(await p.$('.podium')) && guard++ < 60) {
+      if (await p.$('#g-0')) {
+        await p.fill('#g-0', '١٢٣');
+        if (await p.$('#g-1')) await p.fill('#g-1', '1,000');
+        await p.click('[data-act=guess-show]');
+      } else await p.click('[data-act=next]');
+    }
+    ok(!!(await p.$('.podium')) && !errs.length && !(await p.evaluate(() => window.__xss)), 'كم تتوقع: السهرة توصل للنهاية بدون أخطاء ' + errs.join(' '));
     await ctx.close();
   }
 
@@ -159,6 +135,9 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
     JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }, { name: 'b', score: -5 }], deck: ['kabsa'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
     JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa', 'nope'], index: 0, revealed: 9, turn: 5, starter: 0, phase: 'boom', history: [] }),
     JSON.stringify({ v: 1, mode: 'sound', teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
+    JSON.stringify({ v: 1, mode: 'guess', teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['num-bones'], index: 0, phase: 'show', result: { guesses: ['x'], points: [], answer: 1 }, history: [] }),
+    JSON.stringify({ v: 1, mode: 'guess', teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa'], index: 0, phase: 'ask', history: [] }),
+    JSON.stringify({ v: 1, mode: 'guess', teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['num-bones'], index: 0, phase: 'ask', tiebreak: { teams: [7] }, history: [] }),
     JSON.stringify({ v: 1, mode: 'who', players: [{ name: 'x', clues: [1] }], teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['p0'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
     JSON.stringify({ v: 1, mode: 'who', players: [], teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['p9'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] })];
   for (const v of bad) {
