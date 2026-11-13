@@ -22,7 +22,7 @@
   }
 
   /* opts: { teams:[names], cards:[...], length:'short'|'medium'|'long',
-             categories:[ids] (اختياري), style:'turns'|'speed', golden:true, rand:fn, seen:[ids] } */
+             categories:[ids] (اختياري), count: عدد البطاقات بدل length (اختياري), style:'turns'|'speed', golden:true, rand:fn, seen:[ids] } */
   function newGame(opts) {
     var names = (opts.teams || []).map(function (n) { return String(n || '').trim(); });
     if (names.length < 2 || names.length > 4) throw new Error('عدد الفرق لازم يكون من ٢ إلى ٤');
@@ -34,7 +34,7 @@
     var seen = opts.seen || [];
     var fresh = shuffle(pool.filter(function (c) { return seen.indexOf(c.id) === -1; }), rand);
     var old = shuffle(pool.filter(function (c) { return seen.indexOf(c.id) !== -1; }), rand);
-    var want = LENGTHS[opts.length] || LENGTHS.medium;
+    var want = opts.count > 0 ? opts.count : (LENGTHS[opts.length] || LENGTHS.medium);
     var deck = fresh.concat(old).slice(0, want).map(function (c) { return c.id; });
 
     var state = {

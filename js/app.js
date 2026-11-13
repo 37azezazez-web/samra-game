@@ -4,11 +4,20 @@
   var E = window.SamraEngine;
   var CARDS = window.SAMRA_CARDS;
   var CATS = window.SAMRA_CATEGORIES;
-  var byId = {}; CARDS.forEach(function (c) { byId[c.id] = c; });
-  var catById = {}; CATS.forEach(function (c) { catById[c.id] = c; });
+  var SOUNDS = window.SAMRA_SOUNDS || [];
+  var PROMPTS = window.SAMRA_PROMPTS || [];
+  var SFX = window.SamraSfx || { play: function () { return 0; }, stop: function () { } };
+  var byId = {}; CARDS.concat(SOUNDS).forEach(function (c) { byId[c.id] = c; });
+  var catById = {}; CATS.concat([{ id: 'sound', name: 'اسمعها', q: 'وش هالصوت؟' }, { id: 'who', name: 'من فينا؟', q: 'مين فينا؟' }]).forEach(function (c) { catById[c.id] = c; });
+  var MODES = {
+    masira: { name: 'مسيرة', desc: 'تلميحات تنكشف وحدة ورا الثانية، وكل ما عرفتوها أسرع نقاطكم أكثر.' },
+    sound: { name: 'اسمعها', desc: 'صوت يشتغل، وعليكم تعرفون وش هو. محتارين؟ فيه تلميحات.' },
+    who: { name: 'من فينا؟', desc: 'كل واحد يكتب أسراره بالسر، والباقين يخمنون مين صاحبها.' }
+  };
+  var MIN_PLAYERS = 3, MAX_PLAYERS = 16, WHO_Q = 5;
 
   var app = document.getElementById('app');
-  var KEY = 'samra.game.v1', SEEN = 'samra.seen.v1', SETUP = 'samra.setup.v2';
+  var KEY = 'samra.game.v1', SEEN = 'samra.seen.v1', SETUP = 'samra.setup.v2', WHO = 'samra.who.v1';
   var DEFAULT_NAMES = ['الدلة', 'المبخرة', 'الفنجال', 'النخلة'];
   var AR = '٠١٢٣٤٥٦٧٨٩';
 
@@ -23,16 +32,38 @@
   function valid(s) {
     try {
       if (!s || s.v !== 1 || !Array.isArray(s.teams) || s.teams.length < 2 || s.teams.length > 4) return false;
-      if (!Array.isArray(s.deck) || !s.deck.length || !s.deck.every(function (id) { return byId[id]; })) return false;
+      if (s.mode == null) s.mode = 'masira';
+      if (!MODES[s.mode]) return false;
+      if (s.mode === 'who' && !validPlayers(s.players, MIN_PLAYERS)) return false;
+      var has = function (id) { return !!cardOf(s, id); };
+      if (!Array.isArray(s.deck) || !s.deck.length || !s.deck.every(has)) return false;
       if (['clue', 'answer', 'over', 'tiebreak'].indexOf(s.phase) === -1) return false;
       if (!(s.index >= 0 && s.index < s.deck.length) || !(s.revealed >= 1 && s.revealed <= E.MAX_CLUES)) return false;
       if (!(s.turn >= 0 && s.turn < s.teams.length) || !(s.starter >= 0 && s.starter < s.teams.length)) return false;
       if (!s.teams.every(function (t) { return t && typeof t.name === 'string' && t.name.length <= 40 && typeof t.score === 'number' && isFinite(t.score) && t.score >= 0; })) return false;
-      if (!Array.isArray(s.history) || !s.history.every(function (h) { return h && byId[h.card]; })) return false;
+      if (!Array.isArray(s.history) || !s.history.every(function (h) { return h && has(h.card); })) return false;
       if (s.phase === 'answer' && (!s.result || !s.history.length)) return false;
-      if (s.phase === 'tiebreak' && (!s.tiebreak || !byId[s.tiebreak.card] || !Array.isArray(s.tiebreak.teams))) return false;
+      if (s.phase === 'tiebreak' && (!s.tiebreak || !has(s.tiebreak.card) || !Array.isArray(s.tiebreak.teams))) return false;
       return true;
     } catch (e) { return false; }
+  }
+  /* لاعبين «من فينا؟»: اسم + ٥ تلميحات نصية، كلها بحدود */
+  function validPlayers(ps, min) {
+    return Array.isArray(ps) && ps.length >= min && ps.length <= MAX_PLAYERS && ps.every(function (p) {
+      return p && typeof p.name === 'string' && p.name.length > 0 && p.name.length <= 24 && Array.isArray(p.clues) && p.clues.length === WHO_Q &&
+        p.clues.every(function (c) { return typeof c === 'string' && c.length > 0 && c.length <= 120; });
+    });
+  }
+  // البطاقة حسب نوع اللعبة: من فينا بطاقاته من اللاعبين نفسهم
+  function cardOf(s, id) {
+    if (s && s.mode === 'who') {
+      var m = /^p(\d{1,2})$/.exec(String(id)), p = m && s.players[+m[1]];
+      return p ? { id: id, cat: 'who', answer: p.name, clues: p.clues } : null;
+    }
+    var c = byId[id];
+    if (!c) return null;
+    if (s && s.mode === 'sound' ? c.cat !== 'sound' : c.cat === 'sound') return null;
+    return c;
   }
   var state = load(KEY, null);
   if (!valid(state)) { state = null; drop(KEY); }
@@ -43,10 +74,10 @@
     state = s;
     if (s) save(KEY, s); else drop(KEY);
     // نسجل البطاقات اللي انلعبت عشان ما تتكرر بالسهرات الجاية
-    if (s && s.history.length && (!prev || prev.history.length !== s.history.length)) {
+    if (s && s.mode !== 'who' && s.history.length && (!prev || prev.history.length !== s.history.length)) {
       var seen = load(SEEN, []);
       var id = s.history[s.history.length - 1].card;
-      if (seen.indexOf(id) === -1) { seen.push(id); if (seen.length >= CARDS.length) seen = [id]; save(SEEN, seen); }
+      if (seen.indexOf(id) === -1) { seen.push(id); if (seen.length >= CARDS.length + SOUNDS.length) seen = [id]; save(SEEN, seen); }
     }
     render();
   }
@@ -71,13 +102,17 @@
 
   /* ---------- الشاشات ---------- */
   var view = state ? 'play' : 'home';
-  var setupDefault = function () { return { count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.filter(function (c) { return !c.off; }).map(function (c) { return c.id; }) }; };
+  var setupDefault = function () { return { mode: 'masira', count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.filter(function (c) { return !c.off; }).map(function (c) { return c.id; }) }; };
   var setup = load(SETUP, null);
   if (!setup || [2, 3, 4].indexOf(setup.count) === -1 || !Array.isArray(setup.names) || !Array.isArray(setup.cats) ||
       !setup.cats.length || !setup.cats.every(function (c) { return catById[c]; }) || !E.LENGTHS[setup.length]) setup = setupDefault();
+  if (!MODES[setup.mode]) setup.mode = 'masira';
   setup.names = setup.names.slice(0, 4).map(function (n) { return String(n || '').slice(0, 16); });
   while (setup.names.length < 4) setup.names.push(DEFAULT_NAMES[setup.names.length]);
   var peek = false; // المضيف يشوف الجواب
+  var who = load(WHO, null); // لاعبين «من فينا؟» قبل ما تبدأ السهرة
+  if (!who || !validPlayers(who.players, 0)) who = { players: [] };
+  var whoPrompts = null, whoErr = '';
 
   /* لو صار أي خطأ غير متوقع وقت العرض، نرجع للرئيسية بدل شاشة فاضية */
   function render() {
@@ -91,6 +126,8 @@
     if (view === 'home') return renderHome();
     if (view === 'how') return renderHow();
     if (view === 'setup') return renderSetup();
+    if (view === 'collect') return renderCollect();
+    if (view === 'who-form') return renderWhoForm();
     if (!state) { view = 'home'; return renderHome(); }
     if (state.phase === 'over') return renderOver();
     if (state.phase === 'answer') return renderAnswer();
@@ -102,10 +139,12 @@
     var resume = state && state.phase !== 'over';
     app.innerHTML =
       '<img class="logo" src="' + (window.SAMRA_LOGO || 'assets/img/lockup-stacked-light.svg') + '" alt="سمرة">' +
-      '<p class="tag">لعبة الجمعات. جوال واحد يدور بالمجلس، وتلميحات تنكشف وحدة ورا الثانية.</p>' +
+      '<p class="tag">لعبة الجمعات. جوال واحد يدور بالمجلس، وثلاث ألعاب تختارون منها.</p>' +
       '<div class="stack">' +
-      (resume ? '<button class="btn big" type="button" data-act="resume">كمّل السهرة</button>' : '') +
-      '<button class="btn ' + (resume ? 'ghost' : 'big') + '" type="button" data-act="new">سهرة جديدة</button>' +
+      (resume ? '<button class="btn big" type="button" data-act="resume">كمّل سهرة ' + esc(MODES[state.mode].name) + '</button>' : '') +
+      Object.keys(MODES).map(function (m) {
+        return '<button class="mode" type="button" data-act="new" data-mode="' + m + '"><span class="mode-name">' + MODES[m].name + '</span><span class="mode-desc">' + MODES[m].desc + '</span></button>';
+      }).join('') +
       '<button class="btn link" type="button" data-act="how">كيف نلعب؟</button>' +
       '</div>';
   }
@@ -114,14 +153,27 @@
     app.className = 'how';
     app.innerHTML =
       '<div class="top"><span>كيف نلعب؟</span></div>' +
+      '<p>قسّموا أنفسكم فرق، من فريقين إلى ٤. اللي ماسك الجوال هو المضيف، ويقدر يشوف الجواب من زر «المضيف».</p>' +
       '<h2>مسيرة</h2>' +
       '<ol>' +
-      '<li>قسّموا أنفسكم فرق، من فريقين إلى ٤.</li>' +
-      '<li>اللي ماسك الجوال هو المضيف. يقرا التلميحة بصوت عالي، ويقدر يشوف الجواب من الزر اللي فوق التلميحات.</li>' +
+      '<li>المضيف يقرا التلميحة بصوت عالي.</li>' +
       '<li>الدور على فريق واحد كل مرة. يجاوب مرة وحدة بس.</li>' +
       '<li>صح؟ ياخذ النقاط. غلط؟ الدور ينتقل وتنكشف تلميحة جديدة.</li>' +
       '<li>أول تلميحة بـ ٥ نقاط، وكل تلميحة زيادة تنقص نقطة.</li>' +
       '<li>آخر ٣ بطاقات نقاطها مضاعفة، ولو تعادلتوا فيه جولة فاصلة.</li>' +
+      '</ol>' +
+      '<h2>اسمعها</h2>' +
+      '<ol>' +
+      '<li>نفس مسيرة، بس أول تلميحة صوت. ارفعوا صوت الجوال أو وصلوه بسماعة.</li>' +
+      '<li>عرفتوه من الصوت بس؟ ٥ نقاط. تقدرون تعيدون الصوت كل ما بغيتوا.</li>' +
+      '<li>كل الأصوات مصنوعة داخل اللعبة، وتشتغل بدون إنترنت.</li>' +
+      '</ol>' +
+      '<h2>من فينا؟</h2>' +
+      '<ol>' +
+      '<li>كل لاعب ياخذ الجوال لحاله، يكتب اسمه ويجاوب ٥ أسئلة عن نفسه بالسر، ويرجعه.</li>' +
+      '<li>لازم ٣ لاعبين على الأقل.</li>' +
+      '<li>بعدها كل بطاقة شخص منكم: أجوبته تنكشف وحدة وحدة، والفرق يخمنون مين هو.</li>' +
+      '<li>صاحب البطاقة يسكت ولا يساعد فريقه!</li>' +
       '</ol>' +
       '<p class="muted small">تبون أسرع؟ اختاروا «سرعة» من الإعداد: أي فريق يصارخ أول ياخذها.</p>' +
       '<div class="spacer"></div>' +
@@ -141,40 +193,92 @@
     }
     var count = 0;
     var pool = CARDS.filter(function (c) { return setup.cats.indexOf(c.cat) !== -1; }).length;
+    var m = setup.mode;
     app.innerHTML =
-      '<div class="top"><span>سهرة جديدة</span><button class="end" type="button" data-act="home">رجوع</button></div>' +
+      '<div class="top"><span>سهرة ' + MODES[m].name + '</span><button class="end" type="button" data-act="home">رجوع</button></div>' +
       '<div class="field"><span class="label">كم فريق؟</span><div class="chips">' +
         [2, 3, 4].map(function (n) { return chip('count', n, num(n) + ' فرق', setup.count === n); }).join('') + '</div></div>' +
       '<div class="field"><span class="label">أسماء الفرق</span><div class="stack">' + teamInputs + '</div></div>' +
-      '<div class="field"><span class="label">طول السهرة</span><div class="chips">' +
+      (m === 'who' ? '' : '<div class="field"><span class="label">طول السهرة</span><div class="chips">' +
         chip('length', 'short', 'قصيرة · ' + num(E.LENGTHS.short), setup.length === 'short') +
         chip('length', 'medium', 'متوسطة · ' + num(E.LENGTHS.medium), setup.length === 'medium') +
-        chip('length', 'long', 'طويلة · ' + num(E.LENGTHS.long), setup.length === 'long') + '</div></div>' +
+        chip('length', 'long', 'طويلة · ' + num(E.LENGTHS.long), setup.length === 'long') + '</div></div>') +
       '<div class="field"><span class="label">أسلوب التخمين</span><div class="chips">' +
         chip('style', 'turns', 'بالدور', setup.style === 'turns') +
         chip('style', 'speed', 'سرعة', setup.style === 'speed') + '</div>' +
         '<span class="hint">' + (setup.style === 'turns' ? 'كل تلميحة لها فريق واحد يجاوب مرة وحدة.' : 'أي فريق يصارخ بالجواب أول ياخذها.') + '</span></div>' +
-      '<div class="field"><span class="label">الفئات</span><div class="chips">' +
+      (m !== 'masira' ? '' : '<div class="field"><span class="label">الفئات</span><div class="chips">' +
         CATS.map(function (c) { return chip('cat', c.id, c.name, setup.cats.indexOf(c.id) !== -1); }).join('') + '</div>' +
-        '<span class="hint">' + num(pool) + ' بطاقة بالفئات المختارة</span></div>' +
+        '<span class="hint">' + num(pool) + ' بطاقة بالفئات المختارة</span></div>') +
+      (m === 'sound' ? '<p class="hint">' + num(SOUNDS.length) + ' صوت. ارفعوا صوت الجوال.</p>' : '') +
       (err ? '<p class="error" role="alert">' + esc(err) + '</p>' : '') +
       '<div class="spacer"></div>' +
-      '<button class="btn big" type="button" data-act="start">يلا نبدأ</button>';
+      '<button class="btn big" type="button" data-act="start">' + (m === 'who' ? 'التالي: أسرار اللاعبين' : 'يلا نبدأ') + '</button>';
     void count;
+  }
+
+  /* ---------- من فينا؟: جمع أسرار اللاعبين ---------- */
+  function renderCollect(err) {
+    app.className = 'setup';
+    var ps = who.players, ready = ps.length >= MIN_PLAYERS;
+    app.innerHTML =
+      '<div class="top"><span>من فينا؟</span><button class="end" type="button" data-act="who-back">رجوع</button></div>' +
+      '<h2>أسرار اللاعبين</h2>' +
+      '<p class="muted">مرروا الجوال: كل واحد يضغط «دوري»، يكتب اسمه ويجاوب ٥ أسئلة بالسر، وبعدها يرجّع الجوال. أجوبته تنخفي على طول.</p>' +
+      (ps.length ? '<ul class="players">' + ps.map(function (pl, i) {
+        return '<li><span class="nm">' + esc(pl.name) + '</span><span class="ok-mark">جاهز ✓</span>' +
+          '<button class="x" type="button" data-act="who-del" data-i="' + i + '" aria-label="احذف ' + esc(pl.name) + '">×</button></li>';
+      }).join('') + '</ul>' : '') +
+      '<p class="hint">' + num(ps.length) + ' من ' + num(MAX_PLAYERS) + ' لاعب' + (ready ? '' : '، تحتاجون ' + num(MIN_PLAYERS) + ' على الأقل') + '</p>' +
+      (err ? '<p class="error" role="alert">' + esc(err) + '</p>' : '') +
+      '<div class="spacer"></div>' +
+      '<div class="stack">' +
+      (ps.length < MAX_PLAYERS ? '<button class="btn ' + (ready ? 'ghost' : 'big') + '" type="button" data-act="who-add">دوري: أكتب أسراري</button>' : '') +
+      (ready ? '<button class="btn big" type="button" data-act="who-start">خلصنا، يلا نبدأ</button>' : '') +
+      (ps.length ? '<button class="btn link" type="button" data-act="who-clear">امسح كل اللاعبين</button>' : '') +
+      '</div>';
+  }
+
+  function pickPrompts() { return E.shuffle(PROMPTS, Math.random).slice(0, WHO_Q); }
+
+  function renderWhoForm() {
+    app.className = 'setup';
+    if (!whoPrompts) whoPrompts = pickPrompts();
+    app.innerHTML =
+      '<div class="top"><span>من فينا؟ · بالسر</span><button class="end" type="button" data-act="who-cancel">إلغاء</button></div>' +
+      '<p class="muted">لا تخلي أحد يشوف! جاوب بكلمة أو كلمتين.</p>' +
+      '<div class="field"><label class="label" for="who-name">اسمك</label><input type="text" id="who-name" maxlength="24" autocomplete="off"></div>' +
+      whoPrompts.map(function (q, i) {
+        return '<div class="field"><label class="label" for="who-a' + i + '">' + esc(q) + '</label><input type="text" id="who-a' + i + '" maxlength="40" autocomplete="off"></div>';
+      }).join('') +
+      '<button class="btn link" type="button" data-act="who-shuffle">ما عجبتني الأسئلة، غيّرها</button>' +
+      (whoErr ? '<p class="error" role="alert">' + esc(whoErr) + '</p>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn big" type="button" data-act="who-save">احفظ وأخفِ أجوبتي</button>';
+  }
+
+  function readWhoForm() {
+    var nameEl = document.getElementById('who-name');
+    var name = nameEl ? nameEl.value.trim().slice(0, 24) : '';
+    var answers = whoPrompts.map(function (q, i) { var el = document.getElementById('who-a' + i); return el ? el.value.trim().slice(0, 40) : ''; });
+    return { name: name, answers: answers };
   }
 
   function renderClue() {
     app.className = 'play';
-    var s = state, card = byId[E.currentCardId(s)], cat = catById[card.cat];
+    var s = state, card = cardOf(s, E.currentCardId(s)), cat = catById[card.cat];
     var tb = s.phase === 'tiebreak';
     var prog = E.progress(s), golden = !tb && E.isGolden(s);
     var pts = E.cluePoints(s.revealed) * (golden ? 2 : 1);
     var clues = '';
     for (var i = 0; i < E.MAX_CLUES; i++) {
-      if (i < s.revealed) clues += '<li class="clue' + (i >= lastRevealed ? ' new' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(card.clues[i]) + '</span></li>';
+      if (i === 0 && card.sfx) clues += soundClue();
+      else if (i < s.revealed) clues += '<li class="clue' + (i >= lastRevealed ? ' new' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(card.clues[i]) + '</span></li>';
       else clues += '<li class="clue locked"><span class="n">' + num(i + 1) + '</span><span>تلميحة مخفية</span></li>';
     }
+    var fresh = lastRevealed === 0;
     lastRevealed = s.revealed;
+    if (fresh && card.sfx) SFX.play(card.sfx);
     var t = s.teams[s.turn];
     var controls;
     if (s.style === 'turns' || tb) {
@@ -199,6 +303,7 @@
       '<div class="q-head">' + layers(s.revealed) + '<div><span class="badge">' + esc(cat.name) + '</span><h2 class="q-title">' + esc(cat.q) + '</h2>' +
         (tb ? '<p class="pts">أول فريق يعرفها يفوز بالسهرة</p>' : '<p class="pts">الحين على <b>' + num(pts) + '</b> نقاط</p>') + '</div></div>' +
       '<button class="peek" type="button" data-act="peek" aria-pressed="' + peek + '">' + (peek ? 'الجواب: <b>' + esc(card.answer) + '</b> · اخفه' : 'المضيف: اضغط تشوف الجواب') + '</button>' +
+      (s.mode === 'who' ? '<p class="hint">صاحب البطاقة يسكت!</p>' : '') +
       '<ol class="clues">' + clues + '</ol>' +
       '<div class="stack">' + controls + '</div>' +
       '<div class="spacer"></div>' +
@@ -206,9 +311,13 @@
       strip(s, s.style === 'turns' || tb ? s.turn : -1);
   }
 
+  function soundClue() {
+    return '<li class="clue sound"><span class="n">' + num(1) + '</span><button class="btn quiet play" type="button" data-act="play">▶ شغّل الصوت</button></li>';
+  }
+
   function renderAnswer() {
     app.className = 'play';
-    var s = state, card = byId[s.history[s.history.length - 1].card], r = s.result;
+    var s = state, card = cardOf(s, s.history[s.history.length - 1].card), r = s.result;
     lastRevealed = 0;
     var line;
     if (r.team == null) line = '<p class="result muted">محد عرفها</p>';
@@ -219,6 +328,7 @@
       '<div class="top"><span>' + (s.tiebreak ? 'جولة فاصلة' : 'بطاقة ' + num(s.index + 1) + ' من ' + num(s.deck.length)) + '</span><button class="end" type="button" data-act="end">إنهاء</button></div>' +
       '<div class="reveal">' + layers(5) + '<span class="badge">' + esc(catById[card.cat].name) + '</span><div class="ans">' + esc(card.answer) + '</div>' + line + '</div>' +
       '<ol class="clues">' + card.clues.map(function (c, i) {
+        if (i === 0 && card.sfx) return soundClue();
         return '<li class="clue' + (i >= r.revealed ? ' locked' : '') + '"><span class="n">' + num(i + 1) + '</span><span>' + esc(c) + '</span></li>';
       }).join('') + '</ol>' +
       '<div class="spacer"></div>' +
@@ -257,19 +367,34 @@
     }
   }
 
-  function startGame(prevTeams) {
+  function startGame(prevTeams, mode, players) {
     var names = prevTeams || setup.names.slice(0, setup.count).map(function (n, i) { return (n || '').trim() || DEFAULT_NAMES[i]; });
+    mode = mode || setup.mode;
     try {
-      var g = E.newGame({ teams: names, cards: CARDS, length: setup.length, style: setup.style, categories: setup.cats, seen: load(SEEN, []) });
+      var opts = { teams: names, length: setup.length, style: setup.style, seen: load(SEEN, []) };
+      if (mode === 'sound') opts.cards = SOUNDS;
+      else if (mode === 'who') {
+        players = players || who.players;
+        if (!validPlayers(players, MIN_PLAYERS)) throw new Error('تحتاجون ' + num(MIN_PLAYERS) + ' لاعبين على الأقل');
+        opts.cards = players.map(function (_, i) { return { id: 'p' + i, cat: 'who' }; });
+        opts.count = players.length; opts.seen = [];
+      } else { opts.cards = CARDS; opts.categories = setup.cats; }
+      var g = E.newGame(opts);
+      g.mode = mode;
+      if (mode === 'who') g.players = players.map(function (p) { return { name: p.name, clues: p.clues.slice() }; });
       lastRevealed = 0;
       view = 'play';
       setState(g);
-    } catch (e) { view = 'setup'; renderSetup(e.message); }
+    } catch (e) {
+      if (mode === 'who') { view = 'collect'; renderCollect(e.message); }
+      else { view = 'setup'; renderSetup(e.message); }
+    }
   }
 
   function spareIds() {
     var inPlay = state.deck;
-    return E.shuffle(CARDS.filter(function (c) { return inPlay.indexOf(c.id) === -1; }).map(function (c) { return c.id; }), Math.random);
+    if (state.mode === 'who') return [];
+    return E.shuffle((state.mode === 'sound' ? SOUNDS : CARDS).filter(function (c) { return inPlay.indexOf(c.id) === -1; }).map(function (c) { return c.id; }), Math.random);
   }
 
   app.addEventListener('click', function (ev) {
@@ -289,21 +414,52 @@
       return renderSetup();
     }
     switch (act) {
-      case 'new': view = 'setup'; return renderSetup();
+      case 'new': setup.mode = MODES[b.getAttribute('data-mode')] ? b.getAttribute('data-mode') : 'masira'; save(SETUP, setup); view = 'setup'; return renderSetup();
       case 'resume': view = 'play'; return render();
       case 'how': view = 'how'; return render();
       case 'home': view = 'home'; return render();
-      case 'start': readNames(); save(SETUP, setup); return startGame();
+      case 'start':
+        readNames(); save(SETUP, setup);
+        if (setup.mode === 'who') { view = 'collect'; return renderCollect(); }
+        return startGame();
+      case 'play': if (state) { var cc = cardOf(state, state.phase === 'answer' ? state.history[state.history.length - 1].card : E.currentCardId(state)); if (cc && cc.sfx) SFX.play(cc.sfx); } return;
+      case 'who-back': view = 'setup'; return renderSetup();
+      case 'who-add': whoPrompts = pickPrompts(); whoErr = ''; view = 'who-form'; return render();
+      case 'who-cancel': whoErr = ''; view = 'collect'; return render();
+      case 'who-shuffle': {
+        var keep = readWhoForm().name;
+        whoPrompts = pickPrompts(); whoErr = ''; render();
+        var ne = document.getElementById('who-name'); if (ne) ne.value = keep;
+        return;
+      }
+      case 'who-save': {
+        var f = readWhoForm();
+        var taken = who.players.some(function (pl) { return pl.name === f.name; });
+        whoErr = !f.name ? 'اكتب اسمك' : taken ? 'هالاسم موجود، اكتبه بطريقة ثانية' : f.answers.some(function (a) { return !a; }) ? 'جاوب على كل الأسئلة' : '';
+        if (!whoErr && who.players.length >= MAX_PLAYERS) whoErr = 'وصلتوا الحد: ' + num(MAX_PLAYERS) + ' لاعب';
+        if (whoErr || who.players.length >= MAX_PLAYERS) {
+          var vals = f; render();
+          var n2 = document.getElementById('who-name'); if (n2) n2.value = vals.name;
+          vals.answers.forEach(function (a, i) { var el = document.getElementById('who-a' + i); if (el) el.value = a; });
+          return;
+        }
+        who.players.push({ name: f.name, clues: whoPrompts.map(function (q, i) { return q + ': ' + f.answers[i]; }) });
+        save(WHO, who); whoPrompts = null; view = 'collect'; buzz(20);
+        return render();
+      }
+      case 'who-del': who.players.splice(+b.getAttribute('data-i'), 1); save(WHO, who); return render();
+      case 'who-clear': who = { players: [] }; save(WHO, who); return render();
+      case 'who-start': return startGame(null, 'who');
       case 'correct': if (!state) return; buzz(30); return setState(E.correct(state, +b.getAttribute('data-team')));
       case 'wrong': if (!state) return; buzz(12); return setState(E.wrong(state));
       case 'reveal': if (!state) return; return setState(E.revealNext(state));
       case 'giveup': if (!state) return; return setState(E.giveUp(state));
-      case 'next': if (!state) return; peek = false; return setState(E.nextCard(state, spareIds()));
+      case 'next': if (!state) return; peek = false; SFX.stop(); return setState(E.nextCard(state, spareIds()));
       case 'peek': peek = !peek; return render();
       case 'scores': return openScores();
       case 'end': return openDlg(document.getElementById('confirm'));
-      case 'again': if (!state) return; return startGame(state.teams.map(function (t) { return t.name; }));
-      case 'home-clear': view = 'home'; return setState(null);
+      case 'again': if (!state) return; return startGame(state.teams.map(function (t) { return t.name; }), state.mode, state.players);
+      case 'home-clear': view = 'home'; SFX.stop(); return setState(null);
     }
   });
 
@@ -333,7 +489,7 @@
   });
   document.getElementById('confirm-yes').addEventListener('click', function () {
     closeDlg(document.getElementById('confirm'));
-    view = 'home'; setState(null);
+    view = 'home'; SFX.stop(); setState(null);
   });
 
   render();

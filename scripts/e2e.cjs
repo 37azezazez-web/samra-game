@@ -45,8 +45,9 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
       if (i % 150 === 149) await p.reload();
       const r = rnd();
       const res = await p.evaluate(r => {
-        const t = document.getElementById('team-0');
-        if (t) t.value = r < 0.5 ? '<img src=x onerror="window.__xss=1">' : 'فريق «١»';
+        document.querySelectorAll('main input[type=text]').forEach(el => {
+          el.value = (r < 0.5 ? '<img src=x onerror="window.__xss=1">' : 'فريق «١»') + (el.id === 'who-name' ? Math.floor(r * 1e6) : '');
+        });
         const all = [...document.querySelectorAll('main button:not([disabled]), dialog[open] button')]
           .filter(b => b.offsetParent !== null || b.closest('dialog[open]'));
         const dlg = document.querySelector('dialog[open]');
@@ -72,11 +73,86 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
     await ctx.close();
   }
 
+  // كل أصوات «اسمعها» تطلع صوت مسموع وما فيها خلل
+  {
+    const ctx = await b.newContext();
+    const p = await ctx.newPage();
+    await p.goto(url);
+    const res = await p.evaluate(async () => {
+      const out = [];
+      for (const id of window.SamraSfx.ids) {
+        const d = window.SamraSfx.dur(id);
+        const c = new OfflineAudioContext(1, Math.ceil(44100 * (d + 0.3)), 44100);
+        window.SamraSfx.render(id, c);
+        const buf = await c.startRendering();
+        const x = buf.getChannelData(0);
+        let peak = 0, sum = 0, bad = 0;
+        for (let i = 0; i < x.length; i++) { const v = x[i]; if (!isFinite(v)) bad++; else { peak = Math.max(peak, Math.abs(v)); sum += v * v; } }
+        out.push({ id, peak, rms: Math.sqrt(sum / x.length), bad });
+      }
+      return out;
+    });
+    const quiet = res.filter(r => r.peak < 0.05 || r.bad);
+    ok(!quiet.length, `${res.length} صوت كلها تطلع صوت واضح ` + (quiet.length ? JSON.stringify(quiet) : ''));
+    console.log('  ' + res.map(r => `${r.id}:${r.peak.toFixed(2)}/${r.rms.toFixed(3)}`).join(' '));
+    await ctx.close();
+  }
+
+  // من فينا: ٣ لاعبين بأسماء فيها أكواد، ونلعب للنهاية
+  {
+    const ctx = await b.newContext();
+    const p = await ctx.newPage();
+    const errs = [];
+    p.on('pageerror', e => errs.push(e.message));
+    await p.addInitScript(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective)); });
+    await p.goto(url);
+    await p.click('[data-mode=who]');
+    await p.click('[data-act=start]');
+    for (let i = 0; i < 3; i++) {
+      await p.click('[data-act=who-add]');
+      await p.fill("#who-name", `${i}<svg/onload=__xss=1>`);
+      for (let k = 0; k < 5; k++) await p.fill('#who-a' + k, `<script>window.__xss=1</script>${k}`);
+      await p.click('[data-act=who-save]');
+    }
+    const n = await p.$$eval('.players li', l => l.length);
+    ok(n === 3, 'من فينا: ٣ لاعبين انحفظوا');
+    await p.click('[data-act=who-start]');
+    ok(!!(await p.$('.clue')), 'من فينا: البطاقة الأولى طلعت');
+    let guard = 0;
+    while (!(await p.$('.podium')) && guard++ < 60) {
+      const btn = (await p.$('[data-act=correct]')) || (await p.$('[data-act=next]'));
+      await btn.click();
+    }
+    ok(!!(await p.$('.podium')), 'من فينا: السهرة توصل للنهاية');
+    await p.reload();
+    ok(!errs.length && !(await p.evaluate(() => window.__xss)) && !(await p.evaluate(() => window.__csp.length)), 'من فينا: بدون أخطاء ولا تنفيذ أكواد ' + errs.join(' '));
+    await ctx.close();
+  }
+
+  // اسمعها: تبدأ ويشتغل زر الصوت
+  {
+    const ctx = await b.newContext();
+    const p = await ctx.newPage();
+    const errs = [];
+    p.on('pageerror', e => errs.push(e.message));
+    await p.goto(url);
+    await p.click('[data-mode=sound]');
+    await p.click('[data-act=start]');
+    await p.click('[data-act=play]');
+    await p.click('[data-act=wrong]');
+    await p.click('[data-act=play]');
+    ok(!!(await p.$('.clue.sound')) && (await p.$$('.clue:not(.locked)')).length === 2 && !errs.length, 'اسمعها: الصوت يشتغل والتلميحات تنكشف ' + errs.join(' '));
+    await ctx.close();
+  }
+
   // سهرة محفوظة خربانة أو متلاعب فيها
   const bad = ['{', 'null', '{"v":1}',
     JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }], deck: ['x'] }),
     JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }, { name: 'b', score: -5 }], deck: ['kabsa'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
-    JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa', 'nope'], index: 0, revealed: 9, turn: 5, starter: 0, phase: 'boom', history: [] })];
+    JSON.stringify({ v: 1, teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa', 'nope'], index: 0, revealed: 9, turn: 5, starter: 0, phase: 'boom', history: [] }),
+    JSON.stringify({ v: 1, mode: 'sound', teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['kabsa'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
+    JSON.stringify({ v: 1, mode: 'who', players: [{ name: 'x', clues: [1] }], teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['p0'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] }),
+    JSON.stringify({ v: 1, mode: 'who', players: [], teams: [{ name: 'a', score: 0 }, { name: 'b', score: 0 }], deck: ['p9'], index: 0, revealed: 1, turn: 0, starter: 0, phase: 'clue', history: [] })];
   for (const v of bad) {
     const ctx = await b.newContext();
     const p = await ctx.newPage();

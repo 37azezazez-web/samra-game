@@ -63,8 +63,8 @@ p { margin: 0; }
 .btn[disabled] { opacity: .4; pointer-events: none; }
 
 /* home */
-.home { align-items: center; text-align: center; justify-content: center; gap: 26px; }
-.home .logo { width: min(230px, 62%); height: auto; }
+.home { align-items: center; text-align: center; justify-content: center; gap: 20px; }
+.home .logo { width: min(180px, 48%); height: auto; }
 .home .tag { max-width: 30ch; color: var(--wool-dim); }
 .home .stack { width: 100%; max-width: 340px; }
 
@@ -152,3 +152,27 @@ dialog > * + * { margin-top: 14px; }
 .adjust .btn { min-height: 44px; min-width: 44px; padding: 0; font-size: 1.2em; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* اختيار اللعبة */
+.mode {
+  font: inherit; color: var(--wool); text-align: start; cursor: pointer; width: 100%;
+  display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; min-height: 64px;
+  background: var(--tent); border: 1.5px solid var(--line); border-inline-start: 4px solid var(--gold); border-radius: 14px;
+  transition: transform .08s ease;
+}
+.mode:active { transform: scale(.98); }
+.mode:focus-visible { outline: 3px solid var(--wool); outline-offset: 2px; }
+.mode-name { font-family: var(--f-disp); font-weight: 700; font-size: 1.3em; color: var(--gold); }
+.mode-desc { font-size: .88em; color: var(--wool-dim); line-height: 1.5; }
+.mode + .mode { margin-top: 0; }
+
+/* اسمعها */
+.clue.sound { align-items: center; }
+.clue .play { flex: 1; min-height: 48px; }
+
+/* من فينا */
+.players { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.players li { display: flex; align-items: center; gap: 10px; background: var(--tent); border-radius: 12px; padding: 6px 6px 6px 14px; padding-inline-start: 14px; }
+.players .nm { flex: 1; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.players .ok-mark { font-size: .8em; color: var(--gold); }
+.players .x { font: inherit; font-size: 1.3em; width: 44px; height: 44px; border: 0; border-radius: 10px; background: var(--tent2); color: var(--wool-dim); cursor: pointer; }
