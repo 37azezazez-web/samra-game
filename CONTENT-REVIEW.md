@@ -2,7 +2,7 @@
 
 كل بطاقة فيها معلومات عن أشخاص أو أماكن أو تواريخ تحتاج تتأكد قبل الإطلاق. ✅ = تأكدت، ⬜ = باقي.
 
-العدد: 300 بطاقة.
+العدد: 400 بطاقة.
 
 | الحالة | id | الفئة | الجواب |
 |---|---|---|---|
@@ -305,4 +305,104 @@
 | ⬜ | graduation | youth | حفل التخرج |
 | ⬜ | prank | youth | المقلب |
 | ⬜ | barber | youth | الحلاق |
+| ⬜ | liver | food | الكبدة |
+| ⬜ | balila | food | البليلة |
+| ⬜ | dates | food | التمر |
+| ⬜ | gahwa | food | القهوة السعودية |
+| ⬜ | tea | food | الشاي |
+| ⬜ | sayadiya | food | الصيادية |
+| ⬜ | halawa | food | الحلاوة الطحينية |
+| ⬜ | fries | food | البطاطس المقلية |
+| ⬜ | popcorn | food | الفشار |
+| ⬜ | soup | food | الشوربة |
+| ⬜ | muhammar | food | العيش المحمر |
+| ⬜ | pasta | food | المكرونة |
+| ⬜ | argentina | places | الأرجنتين |
+| ⬜ | mexico | places | المكسيك |
+| ⬜ | portugal | places | البرتغال |
+| ⬜ | netherlands | places | هولندا |
+| ⬜ | maldives | places | المالديف |
+| ⬜ | singapore | places | سنغافورة |
+| ⬜ | georgia | places | جورجيا |
+| ⬜ | tunisia | places | تونس |
+| ⬜ | jubail | places | الجبيل |
+| ⬜ | khobar | places | الخبر |
+| ⬜ | diriyah | places | الدرعية |
+| ⬜ | rijal | places | رجال ألمع |
+| ⬜ | nafis | people | ابن النفيس |
+| ⬜ | razi | people | أبو بكر الرازي |
+| ⬜ | jabir | people | جابر بن حيان |
+| ⬜ | hatim | people | حاتم الطائي |
+| ⬜ | imru | people | امرؤ القيس |
+| ⬜ | thunayan | people | يوسف الثنيان |
+| ⬜ | owairan | people | سعيد العويران |
+| ⬜ | deayea | people | محمد الدعيع |
+| ⬜ | jobs | people | ستيف جوبز |
+| ⬜ | armstrong | people | نيل أرمسترونغ |
+| ⬜ | bukhoor | things | البخور |
+| ⬜ | oudoil | things | دهن العود |
+| ⬜ | zuliya | things | الزولية |
+| ⬜ | marka | things | المركى |
+| ⬜ | mahaffa | things | المهفة |
+| ⬜ | haseer | things | الحصير |
+| ⬜ | tv | things | التلفزيون |
+| ⬜ | iron | things | المكواة |
+| ⬜ | blender | things | الخلاط |
+| ⬜ | scale | things | الميزان |
+| ⬜ | compass | things | البوصلة |
+| ⬜ | torch2 | things | الكشاف |
+| ⬜ | sabic | brands | سابك |
+| ⬜ | saudia | brands | الخطوط السعودية |
+| ⬜ | stc | brands | الاتصالات السعودية |
+| ⬜ | rajhi | brands | مصرف الراجحي |
+| ⬜ | nadec | brands | نادك |
+| ⬜ | pandastore | brands | بنده |
+| ⬜ | sony | brands | سوني |
+| ⬜ | tesla | brands | تسلا |
+| ⬜ | ferrari | brands | فيراري |
+| ⬜ | lulu | brands | لولو |
+| ⬜ | house | retro | بيت بيوت |
+| ⬜ | hide | retro | الغميضة |
+| ⬜ | hara | retro | دوري الحواري |
+| ⬜ | wwf | retro | المصارعة الحرة |
+| ⬜ | pager | retro | البيجر |
+| ⬜ | filmcam | retro | كاميرا الفلم |
+| ⬜ | msn | retro | ماسنجر |
+| ⬜ | remi | retro | ريمي |
+| ⬜ | floppy | retro | القرص المرن |
+| ⬜ | fax | retro | الفاكس |
+| ⬜ | cycling | sports | سباق الدراجات |
+| ⬜ | taekwondo | sports | التايكواندو |
+| ⬜ | rugby | sports | الرغبي |
+| ⬜ | americanfb | sports | كرة القدم الأمريكية |
+| ⬜ | cricket | sports | الكريكيت |
+| ⬜ | weights | sports | رفع الأثقال |
+| ⬜ | gym2 | sports | الجمباز |
+| ⬜ | horserace | sports | سباق الخيل |
+| ⬜ | iceage | tv | العصر الجليدي |
+| ⬜ | up | tv | فوق |
+| ⬜ | ratatouille | tv | راتاتوي |
+| ⬜ | walle | tv | وول-إي |
+| ⬜ | moana | tv | موانا |
+| ⬜ | coco | tv | كوكو |
+| ⬜ | superman | tv | سوبرمان |
+| ⬜ | batman | tv | باتمان |
+| ⬜ | lotr | tv | سيد الخواتم |
+| ⬜ | sada | tv | صدى الملاعب |
+| ⬜ | fox | animals | الثعلب |
+| ⬜ | rabbit | animals | الأرنب |
+| ⬜ | parrot | animals | الببغاء |
+| ⬜ | hedgehog | animals | القنفذ |
+| ⬜ | scorpion | animals | العقرب |
+| ⬜ | cobra | animals | الكوبرا |
+| ⬜ | cheetah | animals | الفهد |
+| ⬜ | gazelle | animals | الغزال |
+| ⬜ | frog | animals | الضفدع |
+| ⬜ | gorilla | animals | الغوريلا |
+| ⬜ | eidlook | youth | كشخة العيد |
+| ⬜ | eidiya | youth | العيدية |
+| ⬜ | drone | youth | الدرون |
+| ⬜ | taqtaqa | youth | الطقطقة |
+| ⬜ | matchnight | youth | سهرة المباراة |
+| ⬜ | car | youth | أول سيارة |
 | ⬜ | sumo | sports | السومو |
