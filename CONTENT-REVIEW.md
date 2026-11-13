@@ -2,7 +2,7 @@
 
 كل بطاقة فيها معلومات عن أشخاص أو أماكن أو تواريخ تحتاج تتأكد قبل الإطلاق. ✅ = تأكدت، ⬜ = باقي.
 
-العدد: 200 بطاقة.
+العدد: 300 بطاقة.
 
 | الحالة | id | الفئة | الجواب |
 |---|---|---|---|
@@ -205,4 +205,104 @@
 | ⬜ | showjump | sports | قفز الحواجز |
 | ⬜ | squash | sports | الإسكواش |
 | ⬜ | badminton | sports | كرة الريشة |
+| ⬜ | ghutra | things | الغترة |
+| ⬜ | rushd | people | ابن رشد |
+| ⬜ | diving | sports | الغوص |
+| ⬜ | halim | people | عبدالحليم حافظ |
+| ⬜ | kulthum | people | أم كلثوم |
+| ⬜ | fairuz | people | فيروز |
+| ⬜ | abdulhussain | people | عبدالحسين عبدالرضا |
+| ⬜ | pele | people | بيليه |
+| ⬜ | maradona | people | مارادونا |
+| ⬜ | zidane | people | زين الدين زيدان |
+| ⬜ | salah | people | محمد صلاح |
+| ⬜ | einstein | people | أينشتاين |
+| ⬜ | newton | people | نيوتن |
+| ⬜ | edison | people | أديسون |
+| ⬜ | firnas | people | عباس بن فرناس |
+| ⬜ | jahiz | people | الجاحظ |
+| ⬜ | mutanabbi | people | المتنبي |
+| ⬜ | antara | people | عنترة بن شداد |
+| ⬜ | nike | brands | نايكي |
+| ⬜ | google | brands | جوجل |
+| ⬜ | youtube | brands | يوتيوب |
+| ⬜ | whatsapp | brands | واتساب |
+| ⬜ | amazon | brands | أمازون |
+| ⬜ | ikea | brands | إيكيا |
+| ⬜ | starbucks | brands | ستاربكس |
+| ⬜ | kitkat | brands | كيت كات |
+| ⬜ | nutella | brands | نوتيلا |
+| ⬜ | pepsi | brands | بيبسي |
+| ⬜ | herfy | brands | هرفي |
+| ⬜ | jarir | brands | جرير |
+| ⬜ | hunger | brands | هنقرستيشن |
+| ⬜ | mercedes | brands | مرسيدس |
+| ⬜ | digimon | retro | أبطال الديجيتال |
+| ⬜ | conan | retro | المحقق كونان |
+| ⬜ | flona | retro | فلونة |
+| ⬜ | sally | retro | سالي |
+| ⬜ | payphone | retro | الهاتف العمومي |
+| ⬜ | walkman | retro | الووكمان |
+| ⬜ | gameboy | retro | جيم بوي |
+| ⬜ | mario | retro | سوبر ماريو |
+| ⬜ | kite | retro | الطائرة الورقية |
+| ⬜ | spintop | retro | البلبل |
+| ⬜ | atari | retro | أتاري |
+| ⬜ | carrom | retro | الكيرم |
+| ⬜ | mirror | things | المرآة |
+| ⬜ | glasses | things | النظارة |
+| ⬜ | vacuum | things | المكنسة الكهربائية |
+| ⬜ | kettle | things | الإبريق |
+| ⬜ | charger | things | الشاحن |
+| ⬜ | pillow | things | المخدة |
+| ⬜ | candle | things | الشمعة |
+| ⬜ | hanger | things | الشماعة |
+| ⬜ | alarm | things | المنبه |
+| ⬜ | lock | things | القفل |
+| ⬜ | scissors | things | المقص |
+| ⬜ | spain | places | إسبانيا |
+| ⬜ | germany | places | ألمانيا |
+| ⬜ | russia | places | روسيا |
+| ⬜ | korea | places | كوريا الجنوبية |
+| ⬜ | malaysia | places | ماليزيا |
+| ⬜ | indonesia | places | إندونيسيا |
+| ⬜ | jordan | places | الأردن |
+| ⬜ | lebanon | places | لبنان |
+| ⬜ | greece | places | اليونان |
+| ⬜ | buraidah | places | بريدة |
+| ⬜ | yanbu | places | ينبع |
+| ⬜ | baha | places | الباحة |
+| ⬜ | thareed | food | الثريد |
+| ⬜ | shakshuka | food | الشكشوكة |
+| ⬜ | burger | food | البرجر |
+| ⬜ | donut | food | الدونات |
+| ⬜ | karak | food | الكرك |
+| ⬜ | mutabbaq | food | المطبق |
+| ⬜ | couscous | food | الكسكس |
+| ⬜ | mahshi | food | المحشي |
+| ⬜ | croissant | food | الكرواسون |
+| ⬜ | lion | animals | الأسد |
+| ⬜ | wolf | animals | الذئب |
+| ⬜ | shark | animals | القرش |
+| ⬜ | ant | animals | النملة |
+| ⬜ | zebra | animals | الحمار الوحشي |
+| ⬜ | croc | animals | التمساح |
+| ⬜ | crow | animals | الغراب |
+| ⬜ | arabhorse | animals | الحصان العربي |
+| ⬜ | mosquito | animals | البعوضة |
+| ⬜ | hippo | animals | فرس النهر |
+| ⬜ | cars | tv | السيارات |
+| ⬜ | aladdin | tv | علاء الدين |
+| ⬜ | minions | tv | التوابع |
+| ⬜ | kungfu | tv | كونغ فو باندا |
+| ⬜ | junglebook | tv | كتاب الأدغال |
+| ⬜ | selfie | tv | سيلفي |
+| ⬜ | insideout | tv | قلبا وقالبا |
+| ⬜ | tangled | tv | رابونزل |
+| ⬜ | brunch | youth | البرانش |
+| ⬜ | ps5 | youth | بلايستيشن ٥ |
+| ⬜ | qatta | youth | القطة |
+| ⬜ | graduation | youth | حفل التخرج |
+| ⬜ | prank | youth | المقلب |
+| ⬜ | barber | youth | الحلاق |
 | ⬜ | sumo | sports | السومو |

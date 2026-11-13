@@ -1,5 +1,5 @@
 /* تشغيل بدون إنترنت. غيّر رقم CACHE مع كل تحديث للملفات. */
-var CACHE = 'samra-v4';
+var CACHE = 'samra-v5';
 var FILES = ['./', 'index.html', 'css/style.css', 'css/fonts.css', 'js/app.js', 'js/engine.js', 'js/cards.js',
   'manifest.webmanifest', 'assets/img/symbol.svg', 'assets/img/lockup-stacked-light.svg', 'assets/img/icon-192.png',
   'assets/fonts/Almarai-400-arabic.woff2', 'assets/fonts/Almarai-700-arabic.woff2', 'assets/fonts/Almarai-800-arabic.woff2',
