@@ -1,5 +1,5 @@
-/* تشغيل بدون إنترنت. غيّر رقم CACHE مع كل تحديث للملفات. */
-var CACHE = 'samra-v10';
+/* تشغيل بدون إنترنت. مع كل تحديث: غيّر رقم CACHE هنا، ورقم ?v= في index.html. */
+var CACHE = 'samra-v11';
 var FILES = ['./', 'index.html', 'css/style.css', 'css/fonts.css', 'js/app.js', 'js/engine.js', 'js/cards.js', 'js/numbers.js', 'js/who.js', 'js/guess.js',
   'manifest.webmanifest', 'assets/img/symbol.svg', 'assets/img/lockup-stacked-light.svg', 'assets/img/icon-192.png',
   'assets/fonts/Almarai-400-arabic.woff2', 'assets/fonts/Almarai-700-arabic.woff2', 'assets/fonts/Almarai-800-arabic.woff2',
@@ -13,5 +13,5 @@ self.addEventListener('fetch', function (e) {
   e.respondWith(fetch(e.request).then(function (r) {
     if (r.ok && r.type === 'basic') { var copy = r.clone(); caches.open(CACHE).then(function (c) { c.put(e.request, copy); }); }
     return r;
-  }).catch(function () { return caches.match(e.request); }));
+  }).catch(function () { return caches.match(e.request, { ignoreSearch: true }); }));
 });
