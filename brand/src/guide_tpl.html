@@ -1,0 +1,267 @@
+<title>هوية سمرة</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Almarai:wght@400;700;800&display=swap">
+<style>
+/* Layout: one dark tent-cloth column; sadu bands mark the start and end like a woven strip's selvedge */
+:root{
+  --night:#1C1816; --tent:#26201D; --tent2:#322A26; --wool:#E9E1D3; --wool-dim:#B5AB9B; --red:#A8473B; --gold:#C9934A; --char:#120F0E; --line:#3A322D;
+  --f-disp:"Reem Kufi","Almarai",Tahoma,sans-serif; --f-body:"Almarai",Tahoma,system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--night);color:var(--wool);font-family:var(--f-body);font-size:16px;line-height:1.75;direction:rtl}
+.sadu{height:26px;background:
+  linear-gradient(135deg,var(--char) 25%,transparent 25%) 0 0/26px 26px,
+  linear-gradient(225deg,var(--char) 25%,transparent 25%) 0 0/26px 26px,
+  linear-gradient(45deg,var(--gold) 25%,transparent 25%) 0 0/26px 26px,
+  var(--red)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:48px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
+h2{font-family:var(--f-disp);font-weight:700;font-size:28px;color:var(--wool)}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.muted{color:var(--wool-dim)}
+.lbl{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.02em}
+section{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;flex-direction:column;gap:6px;max-width:64ch}
+
+.hero{display:flex;flex-direction:column;align-items:center;gap:22px;padding-block:24px;text-align:center}
+.hero .st{width:min(300px,70%);height:auto}
+.hero p{max-width:52ch}
+
+.panel{background:var(--tent);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;align-items:center;justify-content:center;min-width:0}
+.panel.lightbg{background:var(--wool);border-color:var(--wool)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.cell{display:flex;flex-direction:column;gap:8px;min-width:0}
+.cap{font-size:13.5px;color:var(--wool-dim)}
+.lk{width:100%;max-width:340px;height:auto}
+.sy{width:96px;height:96px}
+.wm{width:180px;height:auto}
+.lat{width:200px;height:auto}
+
+/* clear space */
+.space{position:relative;padding:40px;border:1px dashed var(--gold);border-radius:6px;display:inline-flex}
+.space .lk{max-width:260px}
+.space::before{content:"م";position:absolute;top:8px;right:10px;font-size:12px;color:var(--gold)}
+.rules{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px}
+
+/* colors */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.col{background:var(--tent);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.col .sw{height:84px;border-bottom:1px solid var(--line)}
+.col .cm{padding:10px 12px;display:flex;flex-direction:column;font-size:12.5px;line-height:1.6}
+.col .cm b{font-size:15px}
+.col .cm span{direction:ltr;text-align:right;font-variant-numeric:tabular-nums;color:var(--wool-dim)}
+.col .cm em{font-style:normal;margin-top:4px;color:var(--wool)}
+.ratio{display:flex;height:22px;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+
+/* type */
+.type{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.spec{background:var(--tent);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.spec .big{font-size:56px;line-height:1.15}
+.d{font-family:var(--f-disp);font-weight:700}
+.scale{display:flex;flex-direction:column;gap:8px}
+.scale div{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.scale span:first-child{font-size:12px;color:var(--wool-dim);width:70px;flex:none;direction:ltr;text-align:right}
+
+/* icon */
+.icons{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
+.ic{display:block;width:180px;height:180px;border-radius:40px;overflow:hidden;border:1px solid var(--line)}
+.i1{width:160px;height:160px;border-radius:36px}
+.i2{width:96px;height:96px;border-radius:22px}
+.i3{width:60px;height:60px;border-radius:14px}
+.i4{width:40px;height:40px;border-radius:9px}
+
+/* misuse */
+.bad{position:relative}
+.bad .panel{height:150px;overflow:hidden}
+.bad .x{position:absolute;top:10px;left:10px;width:26px;height:26px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-weight:800;font-size:14px}
+
+/* screens */
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.phone{background:var(--night);border:1px solid var(--line);border-radius:30px;padding:18px 16px;display:flex;flex-direction:column;gap:10px;min-height:400px}
+.phone .top{display:flex;justify-content:space-between;font-size:12px;color:var(--wool-dim)}
+.phone .ttl{font-family:var(--f-disp);font-weight:700;font-size:22px;color:var(--gold)}
+.clue{background:var(--tent);border-radius:12px;padding:9px 12px;font-size:14px;display:flex;gap:8px}
+.clue i{font-style:normal;color:var(--gold);font-weight:800}
+.clue.off{opacity:.4}
+.btn{margin-top:auto;background:var(--gold);color:var(--char);border-radius:12px;padding:11px;text-align:center;font-weight:800;font-size:14.5px}
+.btn.ghost{background:transparent;color:var(--wool);border:1px solid var(--line);margin-top:0}
+.teams{display:flex;gap:6px}
+.teams span{flex:1;border-radius:10px;padding:6px;text-align:center;font-size:12.5px;font-weight:700}
+.wave{display:flex;gap:5px;align-items:center;justify-content:center;height:110px}
+.wave span{width:8px;border-radius:4px;background:var(--gold)}
+.wave span:nth-child(3n){background:var(--red)}
+.av{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.av span{width:38px;height:38px;border-radius:50%;background:var(--tent2);border:2px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.av span.on{background:var(--gold);border-color:var(--gold);color:var(--char)}
+
+/* voice */
+.voice{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.vbox{background:var(--tent);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.vbox q{quotes:none;display:block;background:var(--night);border-radius:10px;padding:8px 12px}
+.vbox.no q{text-decoration:line-through;text-decoration-color:var(--red);color:var(--wool-dim)}
+
+.note{background:var(--tent);border:1px solid var(--line);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.files{width:100%;border-collapse:collapse;font-size:14.5px}
+.files td{border-bottom:1px solid var(--line);padding:8px 6px;vertical-align:top}
+.files td:first-child{direction:ltr;text-align:right;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--gold);white-space:nowrap}
+.tbl{overflow-x:auto}
+@media (max-width:520px){.spec .big{font-size:44px}.panel{padding:20px}}
+</style>
+
+<div class="sadu" aria-hidden="true"></div>
+<div class="wrap">
+
+  <header class="hero">
+    {{ST_LIGHT}}
+    <p class="muted">سمرة لعبة جمعات: جوال واحد يدور بالمجلس أو ينعرض على التلفزيون، وثلاث أطوار هي مسيرة واسمعها ومن فينا؟. هذا الدليل يحدد كيف يُستخدم الشعار والألوان والخطوط ونبرة الكلام.</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الفكرة</span><h2>طبقات السدو تنكشف مثل التلميحات</h2>
+    <p class="muted">الرمز معيّن من خمس طبقات مأخوذ من نقشة السدو. كل طبقة تقرّبك من القلب، مثل اللعبة بالضبط: كل تلميحة أو صوت أو معلومة تقرّبك من الجواب. القلب الفاتح بالنص هو الجواب نفسه.</p></div>
+    <div class="grid3">
+      <div class="cell"><div class="panel">{{SYM}}</div><span class="cap">الرمز الملوّن</span></div>
+      <div class="cell"><div class="panel">{{SYM_ML}}</div><span class="cap">لون واحد على الداكن</span></div>
+      <div class="cell"><div class="panel lightbg">{{SYM_MD}}</div><span class="cap">لون واحد على الفاتح</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الشعار</span><h2>نسخ الشعار</h2>
+    <p class="muted">الحروف مأخوذة من خط ريم كوفي ومحوّلة لمسارات، يعني الشعار يشتغل بأي برنامج بدون ما تحتاج الخط. استخدم النسخة الأفقية افتراضيًا، والعمودية للأماكن المربعة مثل شاشة البداية.</p></div>
+    <div class="grid2">
+      <div class="cell"><div class="panel">{{H_LIGHT}}</div><span class="cap">أفقي على الداكن (الأساسي)</span></div>
+      <div class="cell"><div class="panel lightbg">{{H_DARK}}</div><span class="cap">أفقي على الفاتح</span></div>
+      <div class="cell"><div class="panel">{{WM_L}}</div><span class="cap">الكلمة لحالها، للأماكن الضيقة</span></div>
+      <div class="cell"><div class="panel">{{LAT_L}}</div><span class="cap">النسخة اللاتينية للمتاجر والمواقع الأجنبية</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">المساحة والحجم</span><h2>اترك للشعار مكانه</h2></div>
+    <div class="grid2">
+      <div class="panel"><div class="space">{{H_LIGHT}}</div></div>
+      <ul class="rules">
+        <li>المساحة الفارغة حول الشعار من كل جهة تساوي نصف ارتفاع الرمز (م).</li>
+        <li>أصغر عرض للشعار الأفقي ١٢٠ بكسل على الشاشة و٣٠ ملم بالطباعة.</li>
+        <li>الرمز لحاله لا يصغر عن ٢٤ بكسل. تحت هذا الحجم استخدم النسخة ذات اللون الواحد.</li>
+        <li>أفضل خلفية للشعار هي «ليل»، وعلى الصور الفاتحة استخدم نسخة الحبر الداكن.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الألوان</span><h2>ألوان داكنة مريحة للعين</h2>
+    <p class="muted">الخلفية دايمًا داكنة، والذهبي هو لون الفعل (زر، نقطة، تلميحة). الأحمر قليل ومقصود. قيم CMYK تقريبية ولازم تتجرب بطباعة تجريبية قبل أي إنتاج.</p></div>
+    <div class="cols">{{CHIPS}}</div>
+    <div class="cell"><div class="ratio" aria-hidden="true"><span style="flex:55;background:#1C1816"></span><span style="flex:20;background:#26201D"></span><span style="flex:12;background:#E9E1D3"></span><span style="flex:9;background:#C9934A"></span><span style="flex:4;background:#A8473B"></span></div>
+    <span class="cap">النسبة التقريبية في أي شاشة: ليل ٥٥٪، خيمة ٢٠٪، صوف ١٢٪، ذهبي ٩٪، أحمر ٤٪</span></div>
+    <p class="cap">ألوان الفرق باللعبة: ذهبي، أحمر السدو، فيروزي مطفي #5E9C93، بنفسجي مطفي #8C7BB5. كلها تتقرا بوضوح على الخلفية الداكنة.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الخطوط</span><h2>كوفي للعناوين، المراعي للنص</h2>
+    <p class="muted">الخطين مجانيين من Google Fonts برخصة OFL، يعني تقدر تستخدمهم بالتطبيق والإعلانات بدون رسوم.</p></div>
+    <div class="type">
+      <div class="spec"><span class="lbl">العناوين</span><span class="big d">ريم كوفي</span><span>Reem Kufi · Bold 700. للعناوين وأسماء الأطوار والأرقام الكبيرة فقط. لا تستخدمه لنص طويل.</span></div>
+      <div class="spec"><span class="lbl">النصوص</span><span class="big" style="font-weight:800">المراعي</span><span>Almarai · 400 و700 و800. للتلميحات والأزرار والتعليمات. واضح حتى على شاشة التلفزيون من بعيد.</span></div>
+    </div>
+    <div class="scale">
+      <div><span>40 · Kufi</span><span class="d" style="font-size:40px;line-height:1.2">وش هي الأكلة؟</span></div>
+      <div><span>24 · Kufi</span><span class="d" style="font-size:24px">مسيرة · اسمعها · من فينا؟</span></div>
+      <div><span>18 · 800</span><span style="font-size:18px;font-weight:800">ورني الجواب</span></div>
+      <div><span>16 · 400</span><span style="font-size:16px">تنطبخ بقدر كبير وتكفي الجمعة كلها</span></div>
+      <div><span>13 · 700</span><span style="font-size:13px;font-weight:700;color:var(--wool-dim)">الجولة ٣ من ١٠ · ٥ نقاط</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">أيقونة التطبيق</span><h2>الأيقونة</h2>
+    <p class="muted">الرمز بالنص على خلفية «ليل»، وشريط سدو فوق وتحت. الآيفون يقص الزوايا بنفسه، والملف ١٠٢٤ مربع بدون شفافية مثل ما تطلب Apple.</p></div>
+    <div class="icons">
+      <div class="cell">{{ICON}}<span class="cap">١٠٢٤ للآب ستور</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الاستخدام الخاطئ</span><h2>لا تسوي كذا</h2></div>
+    <div class="grid3">
+      <div class="cell bad"><div class="panel"><div style="transform:scaleX(1.5);display:flex">{{SYM}}</div></div><span class="x">✕</span><span class="cap">لا تمط الشعار أو تضغطه</span></div>
+      <div class="cell bad"><div class="panel" style="background:#C9934A;border-color:#C9934A">{{SYM}}</div><span class="x">✕</span><span class="cap">لا تحطه على خلفية ذهبية أو حمراء</span></div>
+      <div class="cell bad"><div class="panel"><div style="filter:hue-rotate(160deg);display:flex">{{SYM}}</div></div><span class="x">✕</span><span class="cap">لا تغيّر ألوان الطبقات</span></div>
+      <div class="cell bad"><div class="panel"><div style="transform:rotate(45deg);display:flex">{{SYM}}</div></div><span class="x">✕</span><span class="cap">لا تدوّر الرمز، المعيّن يوقف على رأسه</span></div>
+      <div class="cell bad"><div class="panel"><div style="filter:drop-shadow(0 0 14px #C9934A);display:flex">{{SYM}}</div></div><span class="x">✕</span><span class="cap">لا توهج ولا ظلال ولا تدرجات</span></div>
+      <div class="cell bad"><div class="panel"><span style="font-family:Tahoma,sans-serif;font-size:40px;font-weight:700">سمرة</span></div><span class="x">✕</span><span class="cap">لا تكتب الاسم بخط ثاني بدل الشعار</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">بالتطبيق</span><h2>كيف تبان الشاشات</h2>
+    <p class="muted">أمثلة توضح تطبيق الهوية على الأطوار الثلاثة. الشاشات النهائية تتصمم بعد وثيقة تصميم اللعبة.</p></div>
+    <div class="screens">
+      <div class="phone">
+        <div class="top"><span>مسيرة · أكلة</span><span>٥ نقاط</span></div>
+        <div class="ttl">وش هي الأكلة؟</div>
+        <div class="clue"><i>١</i>تنطبخ بقدر كبير وتكفي الجمعة كلها</div>
+        <div class="clue"><i>٢</i>رز ولحم وبهارات</div>
+        <div class="clue off"><i>٣</i>اضغط تنكشف التلميحة</div>
+        <div class="teams"><span style="background:#C9934A;color:#120F0E">الصقور ١٢</span><span style="background:#A8473B">النخبة ٩</span></div>
+        <div class="btn">ورني الجواب</div>
+      </div>
+      <div class="phone">
+        <div class="top"><span>اسمعها</span><span>الجولة ٣ من ١٠</span></div>
+        <div class="ttl">وش هذا الصوت؟</div>
+        <div class="wave" aria-hidden="true"><span style="height:30px"></span><span style="height:64px"></span><span style="height:44px"></span><span style="height:90px"></span><span style="height:52px"></span><span style="height:78px"></span><span style="height:34px"></span><span style="height:66px"></span><span style="height:22px"></span><span style="height:48px"></span></div>
+        <div class="clue">تلميح: تسمعه كل صباح بالبيت</div>
+        <div class="btn ghost">شغّل مرة ثانية</div>
+        <div class="btn">ورني الجواب</div>
+      </div>
+      <div class="phone">
+        <div class="top"><span>من فينا؟</span><span>٦ لاعبين</span></div>
+        <div class="ttl">واحد فينا…</div>
+        <div class="clue"><i>١</i>يخاف من القطاوة</div>
+        <div class="clue"><i>٢</i>أول سفرة له كانت للبحرين</div>
+        <div class="clue off"><i>٣</i>اضغط تنكشف المعلومة</div>
+        <div class="av" aria-hidden="true"><span>ع</span><span>م</span><span class="on">؟</span><span>س</span><span>ف</span><span>ن</span></div>
+        <div class="btn">مين هو؟</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">نبرة الكلام</span><h2>كأنك تسولف مع ربعك</h2>
+    <p class="muted">لهجة سعودية بيضاء يفهمها كل الخليج. ترحيب وفزعة وطقطقة خفيفة، بدون سخرية جارحة أو كلام فصيح جامد.</p></div>
+    <div class="voice">
+      <div class="vbox"><h3>نقول</h3><q>«حيّ الله الجمعة، مين يبدأ؟»</q><q>«صح عليك، ما فاتتك»</q><q>«قريب… بقي تلميحة وحدة»</q><q>«تعادل! جولة فاصلة»</q></div>
+      <div class="vbox no"><h3>ما نقول</h3><q>«مرحبًا بكم في التطبيق»</q><q>«إجابة خاطئة، حاول مجددًا»</q><q>«خسرت يا فاشل»</q></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الاسم بالمتجر</span><h2>ملاحظة عن الآب ستور</h2></div>
+    <div class="note">
+      <p>فيه تطبيق موجود باسم «سمرة samara» في المتجر السعودي، وهو تطبيق حجز فعاليات وما هو لعبة. Apple ما تسمح باسمين متطابقين، فالاسم في المتجر يكون «سمرة: لعبة الجمعات» (Samra: Party Game)، والشعار والاسم داخل اللعبة يبقون «سمرة».</p>
+      <p class="cap">تم التحقق في ١٣ نوفمبر ٢٠٢٦. التوفر النهائي يتأكد وقت حجز الاسم في App Store Connect.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="lbl">الملفات</span><h2>ملفات الهوية</h2></div>
+    <div class="tbl"><table class="files">
+      <tr><td>lockup-horizontal-light.svg / .png</td><td>الشعار الأفقي على الداكن</td></tr>
+      <tr><td>lockup-horizontal-dark.svg / .png</td><td>الشعار الأفقي على الفاتح</td></tr>
+      <tr><td>lockup-stacked-light|dark.svg / .png</td><td>الشعار العمودي مع الاسم اللاتيني</td></tr>
+      <tr><td>wordmark-light|dark.svg</td><td>كلمة «سمرة» لحالها</td></tr>
+      <tr><td>wordmark-latin-light|dark.svg</td><td>SAMRA</td></tr>
+      <tr><td>symbol.svg / .png</td><td>الرمز الملوّن</td></tr>
+      <tr><td>symbol-mono-light|dark.svg</td><td>الرمز بلون واحد</td></tr>
+      <tr><td>icon.svg · icon-1024|512|192|180.png</td><td>أيقونة التطبيق والويب</td></tr>
+    </table></div>
+  </section>
+</div>
+<div class="sadu" aria-hidden="true"></div>

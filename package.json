@@ -1,0 +1,10 @@
+{
+  "name": "samra-game",
+  "version": "0.1.0",
+  "private": true,
+  "description": "سمرة: لعبة جمعات سعودية",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "license": "UNLICENSED"
+}

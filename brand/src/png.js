@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');const fs=require('fs');const B='/mnt/project-files/samra-game/brand/';
+(async()=>{const b=await chromium.launch();const p=await b.newPage();
+const sheet=`<body style="margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0">
+${['lockup-horizontal','lockup-stacked','wordmark','symbol-mono','wordmark-latin'].map(n=>`<div style="background:#1C1816;padding:30px;display:grid;place-items:center"><img src="data:image/svg+xml;base64,${Buffer.from(fs.readFileSync(B+n+'-light.svg')).toString('base64')}" style="max-width:380px;max-height:220px"></div><div style="background:#E9E1D3;padding:30px;display:grid;place-items:center"><img src="data:image/svg+xml;base64,${Buffer.from(fs.readFileSync(B+n+'-dark.svg')).toString('base64')}" style="max-width:380px;max-height:220px"></div>`).join('')}
+<div style="padding:20px;background:#333;display:grid;place-items:center"><img src="data:image/svg+xml;base64,${Buffer.from(fs.readFileSync(B+'icon.svg')).toString('base64')}" style="width:260px;border-radius:58px"></div></body>`;
+await p.setViewportSize({width:900,height:800});await p.setContent(sheet);await p.screenshot({path:'sheet.png',fullPage:true});
+const svg=fs.readFileSync(B+'icon.svg','utf8');
+for(const s of [1024,512,192,180]){await p.setViewportSize({width:s,height:s});await p.setContent(`<body style="margin:0">${svg.replace(/width="1024" height="1024"/,`width="${s}" height="${s}"`)}</body>`);await p.screenshot({path:B+`icon-${s}.png`,omitBackground:false,clip:{x:0,y:0,width:s,height:s}});}
+for(const n of ['lockup-horizontal-light','lockup-horizontal-dark','lockup-stacked-light','lockup-stacked-dark','symbol']){const t=fs.readFileSync(B+n+'.svg','utf8');const m=t.match(/width="([\d.]+)" height="([\d.]+)"/);const sc=1200/Math.max(+m[1],+m[2]);const w=Math.round(m[1]*sc),h=Math.round(m[2]*sc);await p.setViewportSize({width:w,height:h});await p.setContent(`<body style="margin:0;background:transparent">${t.replace(m[0],`width="${w}" height="${h}"`)}</body>`);await p.screenshot({path:B+n+'.png',omitBackground:true,clip:{x:0,y:0,width:w,height:h}});}
+await b.close()})();
