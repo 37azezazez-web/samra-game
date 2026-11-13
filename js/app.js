@@ -72,7 +72,7 @@
     app.className = 'home';
     var resume = state && state.phase !== 'over';
     app.innerHTML =
-      '<img class="logo" src="assets/img/lockup-stacked-light.svg" alt="سمرة">' +
+      '<img class="logo" src="' + (window.SAMRA_LOGO || 'assets/img/lockup-stacked-light.svg') + '" alt="سمرة">' +
       '<p class="tag">لعبة الجمعات. جوال واحد يدور بالمجلس، وتلميحات تنكشف وحدة ورا الثانية.</p>' +
       '<div class="stack">' +
       (resume ? '<button class="btn big" type="button" data-act="resume">كمّل السهرة</button>' : '') +

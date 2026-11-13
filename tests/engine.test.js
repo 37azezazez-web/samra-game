@@ -28,9 +28,9 @@ test('فلتر الفئات', () => {
 });
 
 test('البطاقات اللي انلعبت تجي آخر شي', () => {
-  const seen = CARDS.slice(0, 25).map(c => c.id);
+  const seen = CARDS.slice(0, CARDS.length - 5).map(c => c.id);
   const g = game({ seen });
-  const fresh = CARDS.slice(25).map(c => c.id);
+  const fresh = CARDS.slice(CARDS.length - 5).map(c => c.id);
   assert.deepStrictEqual(g.deck.slice(0, 5).sort(), fresh.sort());
 });
 
@@ -122,5 +122,5 @@ test('المحتوى: كل بطاقة ٥ تلميحات وفئة معروفة و
     assert.ok(!ids.has(c.id), c.id); ids.add(c.id);
     for (const cl of c.clues) assert.ok(!cl.includes(c.answer.replace(/^ال/, '')) || c.id === 'adnan', `${c.id}: التلميحة فيها الجواب: ${cl}`);
   }
-  assert.strictEqual(CARDS.length, 30);
+  assert.ok(CARDS.length >= 100, 'عدد البطاقات ' + CARDS.length);
 });
