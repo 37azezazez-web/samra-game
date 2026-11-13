@@ -136,7 +136,15 @@ function ok(c, m) { console.log((c ? '✓ ' : '✗ ') + m); if (!c) fails++; }
     const errs = [];
     p.on('pageerror', e => errs.push(e.message));
     await p.goto(url);
-    await p.click('[data-mode=sound]');
+    await p.evaluate(() => localStorage.setItem('samra.setup.v2', JSON.stringify({ mode: 'sound', count: 2, names: ['أ', 'ب', 'ج', 'د'], length: 'short', style: 'turns', cats: ['food'] })));
+    await p.goto(url + 'index.html?soundtest');
+    ok(await p.$eval('[data-mode=sound]', el => el.disabled), 'اسمعها مقفلة مؤقتًا من الرئيسية');
+    await p.close(); await ctx.close();
+  }
+  if (0) {
+    const ctx = await b.newContext();
+    const p = await ctx.newPage();
+    const errs = [];
     await p.click('[data-act=start]');
     await p.click('[data-act=play]');
     await p.click('[data-act=wrong]');

@@ -11,7 +11,7 @@
   var catById = {}; CATS.concat([{ id: 'sound', name: 'اسمعها', q: 'وش هالصوت؟' }, { id: 'who', name: 'من فينا؟', q: 'مين فينا؟' }]).forEach(function (c) { catById[c.id] = c; });
   var MODES = {
     masira: { name: 'مسيرة', desc: 'تلميحات تنكشف وحدة ورا الثانية، وكل ما عرفتوها أسرع نقاطكم أكثر.' },
-    sound: { name: 'اسمعها', desc: 'صوت يشتغل، وعليكم تعرفون وش هو. محتارين؟ فيه تلميحات.' },
+    sound: { name: 'اسمعها', desc: 'قريبًا: نجهز أصوات حقيقية بدل الحالية.', soon: true },
     who: { name: 'من فينا؟', desc: 'كل واحد يكتب أسراره بالسر، والباقين يخمنون مين صاحبها.' }
   };
   var MIN_PLAYERS = 3, MAX_PLAYERS = 16, WHO_Q = 5;
@@ -143,7 +143,7 @@
       '<div class="stack">' +
       (resume ? '<button class="btn big" type="button" data-act="resume">كمّل سهرة ' + esc(MODES[state.mode].name) + '</button>' : '') +
       Object.keys(MODES).map(function (m) {
-        return '<button class="mode" type="button" data-act="new" data-mode="' + m + '"><span class="mode-name">' + MODES[m].name + '</span><span class="mode-desc">' + MODES[m].desc + '</span></button>';
+        return '<button class="mode" type="button" data-act="new" data-mode="' + m + '"' + (MODES[m].soon ? ' disabled' : '') + '><span class="mode-name">' + MODES[m].name + '</span><span class="mode-desc">' + MODES[m].desc + '</span></button>';
       }).join('') +
       '<button class="btn link" type="button" data-act="how">كيف نلعب؟</button>' +
       '</div>';
@@ -414,7 +414,7 @@
       return renderSetup();
     }
     switch (act) {
-      case 'new': setup.mode = MODES[b.getAttribute('data-mode')] ? b.getAttribute('data-mode') : 'masira'; save(SETUP, setup); view = 'setup'; return renderSetup();
+      case 'new': setup.mode = MODES[b.getAttribute('data-mode')] && !MODES[b.getAttribute('data-mode')].soon ? b.getAttribute('data-mode') : 'masira'; save(SETUP, setup); view = 'setup'; return renderSetup();
       case 'resume': view = 'play'; return render();
       case 'how': view = 'how'; return render();
       case 'home': view = 'home'; return render();

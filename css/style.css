@@ -176,3 +176,5 @@ dialog > * + * { margin-top: 14px; }
 .players .nm { flex: 1; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .players .ok-mark { font-size: .8em; color: var(--gold); }
 .players .x { font: inherit; font-size: 1.3em; width: 44px; height: 44px; border: 0; border-radius: 10px; background: var(--tent2); color: var(--wool-dim); cursor: pointer; }
+.mode[disabled] { opacity: .45; cursor: default; border-inline-start-color: var(--line); }
+.mode[disabled] .mode-name { color: var(--wool-dim); }
