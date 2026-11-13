@@ -2,7 +2,7 @@
 
 كل بطاقة فيها معلومات عن أشخاص أو أماكن أو تواريخ تحتاج تتأكد قبل الإطلاق. ✅ = تأكدت، ⬜ = باقي.
 
-العدد: 400 بطاقة.
+العدد: 500 بطاقة.
 
 | الحالة | id | الفئة | الجواب |
 |---|---|---|---|
@@ -405,4 +405,104 @@
 | ⬜ | taqtaqa | youth | الطقطقة |
 | ⬜ | matchnight | youth | سهرة المباراة |
 | ⬜ | car | youth | أول سيارة |
+| ⬜ | qursan | food | القرصان |
+| ⬜ | kebab | food | الكباب |
+| ⬜ | moussaka | food | المسقعة |
+| ⬜ | molokhia | food | الملوخية |
+| ⬜ | areeka | food | العريكة |
+| ⬜ | pancake | food | البان كيك |
+| ⬜ | icecream | food | الآيسكريم |
+| ⬜ | chips | food | الشيبس |
+| ⬜ | cake | food | الكيك |
+| ⬜ | rutab | food | الرطب |
+| ⬜ | yemen | places | اليمن |
+| ⬜ | iraq | places | العراق |
+| ⬜ | syria | places | سوريا |
+| ⬜ | sudan | places | السودان |
+| ⬜ | algeria | places | الجزائر |
+| ⬜ | usa | places | أمريكا |
+| ⬜ | newzealand | places | نيوزيلندا |
+| ⬜ | iceland | places | أيسلندا |
+| ⬜ | thailand | places | تايلند |
+| ⬜ | srilanka | places | سريلانكا |
+| ⬜ | unaizah | places | عنيزة |
+| ⬜ | jouf | places | الجوف |
+| ⬜ | umluj | places | أملج |
+| ⬜ | farasan | places | جزر فرسان |
+| ⬜ | tariq | people | طارق بن زياد |
+| ⬜ | ziryab | people | زرياب |
+| ⬜ | columbus | people | كولومبوس |
+| ⬜ | davinci | people | ليوناردو دافنشي |
+| ⬜ | shakespeare | people | شكسبير |
+| ⬜ | jackson | people | مايكل جاكسون |
+| ⬜ | bolt | people | يوسين بولت |
+| ⬜ | nadal | people | رافاييل نادال |
+| ⬜ | idrisi | people | الإدريسي |
+| ⬜ | nikola | people | نيكولا تسلا |
+| ⬜ | thobe | things | الثوب |
+| ⬜ | naal | things | النعال |
+| ⬜ | abaya | things | العباية |
+| ⬜ | taqiya | things | الطاقية |
+| ⬜ | sofa | things | الكنبة |
+| ⬜ | curtain | things | الستارة |
+| ⬜ | closet | things | الدولاب |
+| ⬜ | doorbell | things | جرس الباب |
+| ⬜ | spoon | things | الملعقة |
+| ⬜ | pressure | things | قدر الضغط |
+| ⬜ | trash | things | سلة المهملات |
+| ⬜ | plug | things | الفيشة |
+| ⬜ | instagram | brands | إنستقرام |
+| ⬜ | microsoft | brands | مايكروسوفت |
+| ⬜ | bmw | brands | بي إم دبليو |
+| ⬜ | nido | brands | نيدو |
+| ⬜ | kfc | brands | كنتاكي |
+| ⬜ | pizzahut | brands | بيتزا هت |
+| ⬜ | extra | brands | إكسترا |
+| ⬜ | noon | brands | نون |
+| ⬜ | uber | brands | أوبر |
+| ⬜ | careem | brands | كريم |
+| ⬜ | tigermask | retro | النمر المقنع |
+| ⬜ | zina | retro | زينة ونحول |
+| ⬜ | tomsawyer | retro | توم سوير |
+| ⬜ | heidi | retro | هايدي |
+| ⬜ | sindbad | retro | سندباد |
+| ⬜ | rccar | retro | السيارة أم ريموت |
+| ⬜ | cottoncandy | retro | غزل البنات |
+| ⬜ | stickers | retro | ألبوم ملصقات الكورة |
+| ⬜ | glassbottle | retro | قارورة البيبسي الزجاج |
+| ⬜ | nes | retro | أتاري أبو شريط |
+| ⬜ | handball | sports | كرة اليد |
+| ⬜ | darts | sports | الدارتس |
+| ⬜ | billiards | sports | البلياردو |
+| ⬜ | surfing | sports | ركوب الأمواج |
+| ⬜ | climbing | sports | تسلق الجبال |
+| ⬜ | pingpong | sports | تنس الطاولة |
+| ⬜ | javelin | sports | رمي الرمح |
+| ⬜ | skydive | sports | القفز بالمظلة |
+| ⬜ | iyal | tv | العيال كبرت |
+| ⬜ | mushaghebeen | tv | مدرسة المشاغبين |
+| ⬜ | incredibles | tv | الخارقون |
+| ⬜ | paddington | tv | بادينغتون |
+| ⬜ | pinocchio | tv | بينوكيو |
+| ⬜ | cinderella | tv | سندريلا |
+| ⬜ | snowwhite | tv | سنو وايت |
+| ⬜ | beauty | tv | الجميلة والوحش |
+| ⬜ | peterpan | tv | بيتر بان |
+| ⬜ | alibaba | tv | علي بابا والأربعين حرامي |
+| ⬜ | cow | animals | البقرة |
+| ⬜ | monkey | animals | القرد |
+| ⬜ | pigeon | animals | الحمامة |
+| ⬜ | chicken | animals | الدجاجة |
+| ⬜ | duck | animals | البطة |
+| ⬜ | snail | animals | الحلزون |
+| ⬜ | butterfly | animals | الفراشة |
+| ⬜ | sheep | animals | الخروف |
+| ⬜ | goat | animals | الماعز |
+| ⬜ | polarbear | animals | الدب القطبي |
+| ⬜ | wifi | youth | الواي فاي |
+| ⬜ | summer | youth | الإجازة الصيفية |
+| ⬜ | chalet | youth | الشاليه |
+| ⬜ | whitefriday | youth | الوايت فرايدي |
+| ⬜ | nap | youth | القيلولة |
+| ⬜ | momcall | youth | اتصال الوالدة |
 | ⬜ | sumo | sports | السومو |
