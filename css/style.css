@@ -105,6 +105,10 @@ input[type="text"] {
 .team-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .team-btn { border: 2px solid var(--c); background: transparent; color: var(--wool); }
 
+.peek { font: inherit; font-size: .9em; text-align: start; padding: 10px 14px; min-height: 44px; border-radius: 12px; border: 1.5px dashed var(--line); background: transparent; color: var(--wool-dim); cursor: pointer; }
+.peek[aria-pressed="true"] { border-style: solid; border-color: var(--gold); color: var(--wool); background: var(--tent); }
+.peek b { color: var(--gold); font-size: 1.1em; }
+
 /* answer */
 .reveal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 0 6px; }
 .reveal .layers { width: 96px; height: 96px; }

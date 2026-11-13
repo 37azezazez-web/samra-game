@@ -8,7 +8,7 @@
   var catById = {}; CATS.forEach(function (c) { catById[c.id] = c; });
 
   var app = document.getElementById('app');
-  var KEY = 'samra.game.v1', SEEN = 'samra.seen.v1', SETUP = 'samra.setup.v1';
+  var KEY = 'samra.game.v1', SEEN = 'samra.seen.v1', SETUP = 'samra.setup.v2';
   var DEFAULT_NAMES = ['الدلة', 'المبخرة', 'الفنجال', 'النخلة'];
   var AR = '٠١٢٣٤٥٦٧٨٩';
 
@@ -56,7 +56,8 @@
 
   /* ---------- الشاشات ---------- */
   var view = state ? 'play' : 'home';
-  var setup = load(SETUP, { count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.map(function (c) { return c.id; }) });
+  var setup = load(SETUP, { count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.filter(function (c) { return !c.off; }).map(function (c) { return c.id; }) });
+  var peek = false; // المضيف يشوف الجواب
 
   function render() {
     if (view === 'home') return renderHome();
@@ -88,7 +89,7 @@
       '<h2>مسيرة</h2>' +
       '<ol>' +
       '<li>قسّموا أنفسكم فرق، من فريقين إلى ٤.</li>' +
-      '<li>اللي ماسك الجوال هو المضيف. يقرا التلميحة بصوت عالي.</li>' +
+      '<li>اللي ماسك الجوال هو المضيف. يقرا التلميحة بصوت عالي، ويقدر يشوف الجواب من الزر اللي فوق التلميحات.</li>' +
       '<li>الدور على فريق واحد كل مرة. يجاوب مرة وحدة بس.</li>' +
       '<li>صح؟ ياخذ النقاط. غلط؟ الدور ينتقل وتنكشف تلميحة جديدة.</li>' +
       '<li>أول تلميحة بـ ٥ نقاط، وكل تلميحة زيادة تنقص نقطة.</li>' +
@@ -169,6 +170,7 @@
         '<button class="end" type="button" data-act="end">إنهاء</button></div>' +
       '<div class="q-head">' + layers(s.revealed) + '<div><span class="badge">' + esc(cat.name) + '</span><h2 class="q-title">' + esc(cat.q) + '</h2>' +
         (tb ? '<p class="pts">أول فريق يعرفها يفوز بالسهرة</p>' : '<p class="pts">الحين على <b>' + num(pts) + '</b> نقاط</p>') + '</div></div>' +
+      '<button class="peek" type="button" data-act="peek" aria-pressed="' + peek + '">' + (peek ? 'الجواب: <b>' + esc(card.answer) + '</b> · اخفه' : 'المضيف: اضغط تشوف الجواب') + '</button>' +
       '<ol class="clues">' + clues + '</ol>' +
       '<div class="stack">' + controls + '</div>' +
       '<div class="spacer"></div>' +
@@ -268,7 +270,8 @@
       case 'wrong': buzz(12); return setState(E.wrong(state));
       case 'reveal': return setState(E.revealNext(state));
       case 'giveup': return setState(E.giveUp(state));
-      case 'next': return setState(E.nextCard(state, spareIds()));
+      case 'next': peek = false; return setState(E.nextCard(state, spareIds()));
+      case 'peek': peek = !peek; return render();
       case 'scores': return openScores();
       case 'end': return document.getElementById('confirm').showModal();
       case 'again': return startGame(state.teams.map(function (t) { return t.name; }));

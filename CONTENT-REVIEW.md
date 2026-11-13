@@ -2,7 +2,7 @@
 
 كل بطاقة فيها معلومات عن أشخاص أو أماكن أو تواريخ تحتاج تتأكد قبل الإطلاق. ✅ = تأكدت، ⬜ = باقي.
 
-العدد: 100 بطاقة.
+العدد: 200 بطاقة.
 
 | الحالة | id | الفئة | الجواب |
 |---|---|---|---|
@@ -105,4 +105,104 @@
 | ⬜ | marathon | sports | الماراثون |
 | ⬜ | chess | sports | الشطرنج |
 | ⬜ | volleyball | sports | الكرة الطائرة |
+| ⬜ | ibnmajid | people | أحمد بن ماجد |
+| ⬜ | haytham | people | ابن الهيثم |
+| ⬜ | tash | tv | طاش ما طاش |
+| ⬜ | zalaq | tv | درب الزلق |
+| ⬜ | asouf | tv | العاصوف |
+| ⬜ | harah | tv | باب الحارة |
+| ⬜ | masameer | tv | مسامير |
+| ⬜ | lionking | tv | الأسد الملك |
+| ⬜ | frozen | tv | ملكة الثلج |
+| ⬜ | toystory | tv | حكاية لعبة |
+| ⬜ | titanic | tv | تايتانك |
+| ⬜ | potter | tv | هاري بوتر |
+| ⬜ | spiderman | tv | الرجل العنكبوت |
+| ⬜ | nemo | tv | البحث عن نيمو |
+| ⬜ | homealone | tv | وحيد في المنزل |
+| ⬜ | wadjda | tv | وجدة |
+| ⬜ | bean | tv | مستر بين |
+| ⬜ | tomjerry | tv | توم وجيري |
+| ⬜ | spongebob | tv | سبونج بوب |
+| ⬜ | khawater | tv | خواطر |
+| ⬜ | shrek | tv | شريك |
+| ⬜ | camel | animals | الجمل |
+| ⬜ | falcon | animals | الصقر |
+| ⬜ | oryx | animals | المها العربي |
+| ⬜ | dhub | animals | الضب |
+| ⬜ | bluewhale | animals | الحوت الأزرق |
+| ⬜ | giraffe | animals | الزرافة |
+| ⬜ | penguin | animals | البطريق |
+| ⬜ | bat | animals | الخفاش |
+| ⬜ | chameleon | animals | الحرباء |
+| ⬜ | octopus | animals | الأخطبوط |
+| ⬜ | elephant | animals | الفيل |
+| ⬜ | leopard | animals | النمر العربي |
+| ⬜ | kangaroo | animals | الكنغر |
+| ⬜ | panda | animals | الباندا |
+| ⬜ | bee | animals | النحلة |
+| ⬜ | ostrich | animals | النعامة |
+| ⬜ | dolphin | animals | الدلفين |
+| ⬜ | peacock | animals | الطاووس |
+| ⬜ | turtle | animals | السلحفاة |
+| ⬜ | owl | animals | البومة |
+| ⬜ | kashta | youth | الكشتة |
+| ⬜ | istiraha | youth | الاستراحة |
+| ⬜ | snap | youth | سناب شات |
+| ⬜ | familygroup | youth | قروب العائلة |
+| ⬜ | baloot | youth | البلوت |
+| ⬜ | sheilat | youth | الشيلات |
+| ⬜ | fifa | youth | فيفا |
+| ⬜ | specialty | youth | القهوة المختصة |
+| ⬜ | gym | youth | الجيم |
+| ⬜ | tiktok | youth | تيك توك |
+| ⬜ | minecraft | youth | ماين كرافت |
+| ⬜ | quad | youth | الدبابات |
+| ⬜ | jamr | youth | شاهي الجمر |
+| ⬜ | exams | youth | الاختبارات النهائية |
+| ⬜ | payday | youth | يوم الراتب |
+| ⬜ | kunafa | food | الكنافة |
+| ⬜ | basbousa | food | البسبوسة |
+| ⬜ | maamoul | food | المعمول |
+| ⬜ | falafel | food | الفلافل |
+| ⬜ | kibbeh | food | الكبة |
+| ⬜ | madghut | food | المضغوط |
+| ⬜ | hummus | food | الحمص |
+| ⬜ | bukhari | food | الرز البخاري |
+| ⬜ | pizza | food | البيتزا |
+| ⬜ | sushi | food | السوشي |
+| ⬜ | london | places | لندن |
+| ⬜ | newyork | places | نيويورك |
+| ⬜ | dubai | places | دبي |
+| ⬜ | bahrain | places | البحرين |
+| ⬜ | oman | places | عمان |
+| ⬜ | qatar | places | قطر |
+| ⬜ | china | places | الصين |
+| ⬜ | australia | places | أستراليا |
+| ⬜ | canada | places | كندا |
+| ⬜ | swiss | places | سويسرا |
+| ⬜ | dammam | places | الدمام |
+| ⬜ | najran | places | نجران |
+| ⬜ | jazan | places | جازان |
+| ⬜ | hail | places | حائل |
+| ⬜ | thermos | things | الترمس |
+| ⬜ | ac | things | المكيف |
+| ⬜ | manqal | things | المنقل |
+| ⬜ | fridge | things | الثلاجة |
+| ⬜ | washer | things | الغسالة |
+| ⬜ | mirash | things | المرش |
+| ⬜ | misbaha | things | السبحة |
+| ⬜ | umbrella | things | الشمسية |
+| ⬜ | hourglass | things | الساعة الرملية |
+| ⬜ | key | things | المفتاح |
+| ⬜ | golf | sports | الغولف |
+| ⬜ | swimming | sports | السباحة |
+| ⬜ | karate | sports | الكاراتيه |
+| ⬜ | baseball | sports | البيسبول |
+| ⬜ | hockey | sports | هوكي الجليد |
+| ⬜ | ski | sports | التزلج على الثلج |
+| ⬜ | shooting | sports | الرماية |
+| ⬜ | showjump | sports | قفز الحواجز |
+| ⬜ | squash | sports | الإسكواش |
+| ⬜ | badminton | sports | كرة الريشة |
 | ⬜ | sumo | sports | السومو |
