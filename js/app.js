@@ -19,8 +19,23 @@
   function drop(k) { try { localStorage.removeItem(k); } catch (e) { } }
   function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
 
+  /* نتأكد إن السهرة المحفوظة سليمة قبل ما نكملها. أي شي غريب (ملف قديم، بطاقة انحذفت، تلاعب) = نبدأ من جديد بدل ما تعلق */
+  function valid(s) {
+    try {
+      if (!s || s.v !== 1 || !Array.isArray(s.teams) || s.teams.length < 2 || s.teams.length > 4) return false;
+      if (!Array.isArray(s.deck) || !s.deck.length || !s.deck.every(function (id) { return byId[id]; })) return false;
+      if (['clue', 'answer', 'over', 'tiebreak'].indexOf(s.phase) === -1) return false;
+      if (!(s.index >= 0 && s.index < s.deck.length) || !(s.revealed >= 1 && s.revealed <= E.MAX_CLUES)) return false;
+      if (!(s.turn >= 0 && s.turn < s.teams.length) || !(s.starter >= 0 && s.starter < s.teams.length)) return false;
+      if (!s.teams.every(function (t) { return t && typeof t.name === 'string' && t.name.length <= 40 && typeof t.score === 'number' && isFinite(t.score) && t.score >= 0; })) return false;
+      if (!Array.isArray(s.history) || !s.history.every(function (h) { return h && byId[h.card]; })) return false;
+      if (s.phase === 'answer' && (!s.result || !s.history.length)) return false;
+      if (s.phase === 'tiebreak' && (!s.tiebreak || !byId[s.tiebreak.card] || !Array.isArray(s.tiebreak.teams))) return false;
+      return true;
+    } catch (e) { return false; }
+  }
   var state = load(KEY, null);
-  if (state && (!state.deck || state.v !== 1)) state = null;
+  if (!valid(state)) { state = null; drop(KEY); }
   var lastRevealed = 0;
 
   function setState(s) {
@@ -50,16 +65,29 @@
   function strip(s, active) {
     return '<button class="strip" type="button" data-act="scores" aria-label="النقاط، اضغط للتعديل">' +
       s.teams.map(function (t, i) {
-        return '<span class="s' + (i === active ? ' on' : '') + '" style="--c:' + t.color + '"><span class="nm">' + esc(t.name) + '</span><span class="sc">' + num(t.score) + '</span></span>';
+        return '<span class="s t' + i + (i === active ? ' on' : '') + '"><span class="nm">' + esc(t.name) + '</span><span class="sc">' + num(t.score) + '</span></span>';
       }).join('') + '</button>';
   }
 
   /* ---------- الشاشات ---------- */
   var view = state ? 'play' : 'home';
-  var setup = load(SETUP, { count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.filter(function (c) { return !c.off; }).map(function (c) { return c.id; }) });
+  var setupDefault = function () { return { count: 2, names: DEFAULT_NAMES.slice(), length: 'medium', style: 'turns', cats: CATS.filter(function (c) { return !c.off; }).map(function (c) { return c.id; }) }; };
+  var setup = load(SETUP, null);
+  if (!setup || [2, 3, 4].indexOf(setup.count) === -1 || !Array.isArray(setup.names) || !Array.isArray(setup.cats) ||
+      !setup.cats.length || !setup.cats.every(function (c) { return catById[c]; }) || !E.LENGTHS[setup.length]) setup = setupDefault();
+  setup.names = setup.names.slice(0, 4).map(function (n) { return String(n || '').slice(0, 16); });
+  while (setup.names.length < 4) setup.names.push(DEFAULT_NAMES[setup.names.length]);
   var peek = false; // المضيف يشوف الجواب
 
+  /* لو صار أي خطأ غير متوقع وقت العرض، نرجع للرئيسية بدل شاشة فاضية */
   function render() {
+    try { draw(); }
+    catch (e) {
+      try { console.error(e); } catch (x) { }
+      state = null; drop(KEY); view = 'home'; renderHome();
+    }
+  }
+  function draw() {
     if (view === 'home') return renderHome();
     if (view === 'how') return renderHow();
     if (view === 'setup') return renderSetup();
@@ -105,7 +133,7 @@
     var names = setup.names;
     var teamInputs = '';
     for (var i = 0; i < setup.count; i++) {
-      teamInputs += '<label class="team-input"><span class="dot" style="background:' + E.TEAM_COLORS[i] + '"></span>' +
+      teamInputs += '<label class="team-input t' + i + '"><span class="dot"></span>' +
         '<input type="text" id="team-' + i + '" maxlength="16" value="' + esc(names[i] || '') + '" aria-label="اسم الفريق ' + num(i + 1) + '"></label>';
     }
     function chip(group, val, label, on) {
@@ -152,7 +180,7 @@
     if (s.style === 'turns' || tb) {
       var lastRound = s.revealed >= E.MAX_CLUES;
       controls =
-        '<div class="turn" style="--c:' + t.color + '"><span class="dot" style="background:' + t.color + '"></span>الدور على: ' + esc(t.name) + '</div>' +
+        '<div class="turn t' + s.turn + '"><span class="dot"></span>الدور على: ' + esc(t.name) + '</div>' +
         '<div class="row"><button class="btn ok big" type="button" data-act="correct" data-team="' + s.turn + '">صح ✓</button>' +
         '<button class="btn no big" type="button" data-act="wrong">غلط ✗</button></div>' +
         '<p class="hint">' + (lastRound ? 'آخر تلميحة: كل فريق ياخذ فرصة وحدة.' : 'غلط؟ الدور ينتقل للفريق الجاي وتنكشف تلميحة.') + '</p>';
@@ -160,7 +188,7 @@
       controls =
         '<span class="label">مين جاوب صح؟</span>' +
         '<div class="team-btns">' + s.teams.map(function (tm, i) {
-          return '<button class="btn team-btn" style="--c:' + tm.color + '" type="button" data-act="correct" data-team="' + i + '">' + esc(tm.name) + '</button>';
+          return '<button class="btn team-btn t' + i + '" type="button" data-act="correct" data-team="' + i + '">' + esc(tm.name) + '</button>';
         }).join('') + '</div>' +
         '<button class="btn quiet" type="button" data-act="reveal"' + (s.revealed >= E.MAX_CLUES ? ' disabled' : '') + '>تلميحة جديدة</button>';
     }
@@ -213,9 +241,9 @@
       '<div class="reveal">' + layers(5) + '<div class="crown">' + title + '</div>' +
       (s.tiebreak && s.tiebreak.winner != null ? '<p class="muted">حسموها بالجولة الفاصلة</p>' : '') + '</div>' +
       '<ol class="podium">' + order.map(function (o, k) {
-        return '<li class="' + (win.indexOf(o.i) !== -1 ? 'win' : '') + '" style="--c:' + o.t.color + '"><span class="rk">' + num(k + 1) + '</span><span class="nm">' + esc(o.t.name) + '</span><span class="sc">' + num(o.t.score) + '</span></li>';
+        return '<li class="t' + o.i + (win.indexOf(o.i) !== -1 ? ' win' : '') + '"><span class="rk">' + num(k + 1) + '</span><span class="nm">' + esc(o.t.name) + '</span><span class="sc">' + num(o.t.score) + '</span></li>';
       }).join('') + '</ol>' +
-      '<p class="muted small" style="text-align:center">عرفتوا ' + num(known.length) + ' من ' + num(s.deck.length) + ' بطاقة' + (quick ? '، و' + num(quick) + ' منها من أول تلميحة' : '') + '</p>' +
+      '<p class="muted small center">عرفتوا ' + num(known.length) + ' من ' + num(s.deck.length) + ' بطاقة' + (quick ? '، و' + num(quick) + ' منها من أول تلميحة' : '') + '</p>' +
       '<div class="spacer"></div>' +
       '<div class="stack"><button class="btn big" type="button" data-act="again">سهرة ثانية بنفس الفرق</button>' +
       '<button class="btn ghost" type="button" data-act="home-clear">الرئيسية</button></div>';
@@ -266,28 +294,31 @@
       case 'how': view = 'how'; return render();
       case 'home': view = 'home'; return render();
       case 'start': readNames(); save(SETUP, setup); return startGame();
-      case 'correct': buzz(30); return setState(E.correct(state, +b.getAttribute('data-team')));
-      case 'wrong': buzz(12); return setState(E.wrong(state));
-      case 'reveal': return setState(E.revealNext(state));
-      case 'giveup': return setState(E.giveUp(state));
-      case 'next': peek = false; return setState(E.nextCard(state, spareIds()));
+      case 'correct': if (!state) return; buzz(30); return setState(E.correct(state, +b.getAttribute('data-team')));
+      case 'wrong': if (!state) return; buzz(12); return setState(E.wrong(state));
+      case 'reveal': if (!state) return; return setState(E.revealNext(state));
+      case 'giveup': if (!state) return; return setState(E.giveUp(state));
+      case 'next': if (!state) return; peek = false; return setState(E.nextCard(state, spareIds()));
       case 'peek': peek = !peek; return render();
       case 'scores': return openScores();
-      case 'end': return document.getElementById('confirm').showModal();
-      case 'again': return startGame(state.teams.map(function (t) { return t.name; }));
+      case 'end': return openDlg(document.getElementById('confirm'));
+      case 'again': if (!state) return; return startGame(state.teams.map(function (t) { return t.name; }));
       case 'home-clear': view = 'home'; return setState(null);
     }
   });
+
+  function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  function closeDlg(d) { if (d.close) d.close(); else d.removeAttribute('open'); }
 
   /* نافذة تعديل النقاط */
   var scoresDlg = document.getElementById('scores');
   function openScores() {
     fillScores();
-    scoresDlg.showModal();
+    openDlg(scoresDlg);
   }
   function fillScores() {
     document.getElementById('scores-list').innerHTML = state.teams.map(function (t, i) {
-      return '<li style="--c:' + t.color + '"><span class="nm">' + esc(t.name) + '</span>' +
+      return '<li class="t' + i + '"><span class="nm">' + esc(t.name) + '</span>' +
         '<button class="btn quiet" type="button" data-adj="-1" data-team="' + i + '" aria-label="نقص نقطة من ' + esc(t.name) + '">−</button>' +
         '<span class="sc">' + num(t.score) + '</span>' +
         '<button class="btn quiet" type="button" data-adj="1" data-team="' + i + '" aria-label="زد نقطة لـ ' + esc(t.name) + '">+</button></li>';
@@ -295,19 +326,19 @@
   }
   scoresDlg.addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-adj')) { setState(E.adjust(state, +b.getAttribute('data-team'), +b.getAttribute('data-adj'))); fillScores(); }
+    if (b.hasAttribute('data-adj') && state) { setState(E.adjust(state, +b.getAttribute('data-team'), +b.getAttribute('data-adj'))); fillScores(); }
   });
   document.querySelectorAll('dialog [data-close]').forEach(function (b) {
-    b.addEventListener('click', function () { b.closest('dialog').close(); });
+    b.addEventListener('click', function () { closeDlg(b.closest('dialog')); });
   });
   document.getElementById('confirm-yes').addEventListener('click', function () {
-    document.getElementById('confirm').close();
+    closeDlg(document.getElementById('confirm'));
     view = 'home'; setState(null);
   });
 
   render();
 
-  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     navigator.serviceWorker.register('sw.js').catch(function () { });
   }
 })();
